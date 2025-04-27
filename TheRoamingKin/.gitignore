@@ -1,0 +1,45 @@
+# Xcode
+DerivedData/
+build/
+*.xcworkspace
+!default.xcworkspace
+xcuserdata/
+*.xcuserstate
+.idea/
+*.moved-aside
+*.xcuserdatad/
+*.xccheckout
+*.xcodeproj/project.xcworkspace/
+*.xcodeproj/xcuserdata/
+
+# Swift Package Manager
+.build/
+Packages/
+Package.resolved
+
+# CocoaPods (if ever used)
+Pods/
+Podfile.lock
+
+# Carthage (if used)
+Carthage/
+Carthage/Build/
+
+# Firebase Configs
+GoogleService-Info.plist
+
+# Fastlane
+fastlane/report.xml
+fastlane/screenshots
+fastlane/test_output
+fastlane/*.log
+
+# CI
+.env
+*.log
+
+# Others
+*.DS_Store
+*.swp
+*.lock
+*.orig
