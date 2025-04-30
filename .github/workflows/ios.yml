@@ -1,4 +1,4 @@
-name: iOS Build & Test
+name: iOS Starter Workflow
 
 on:
   push:
@@ -8,38 +8,47 @@ on:
 
 jobs:
   build:
-    runs-on: macos-13
+    name: Build and Test default scheme using any available iPhone simulator
+    runs-on: macos-14  # ensures support for Xcode 16
 
     steps:
       - name: Select Xcode 16.3
         run: sudo xcode-select -s /Applications/Xcode_16.3.app
 
-      - name: Checkout Code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Find Default Scheme
-        id: find-scheme
+      - name: Set Default Scheme
         run: |
-          scheme=$(xcodebuild -list -json | ruby -rjson -e 'puts JSON.parse(STDIN.read)["project"]["targets"].first')
-          echo "Using scheme: $scheme"
-          echo "scheme=$scheme" >> $GITHUB_OUTPUT
+          scheme_list=$(xcodebuild -list -json | tr -d "\n")
+          default=$(echo $scheme_list | ruby -e "require 'json'; puts JSON.parse(STDIN.gets)['project']['targets'][0]")
+          echo $default > default
+          echo "Using default scheme: $default"
 
-      - name: Build for Testing
+      - name: Build
         run: |
-          scheme=${{ steps.find-scheme.outputs.scheme }}
-          project=$(ls *.xcodeproj | head -n 1)
-          destination="platform=iOS Simulator,name=iPhone 15"
-          xcodebuild build-for-testing \
-            -project "$project" \
-            -scheme "$scheme" \
-            -destination "$destination"
+          device=$(xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | awk '{$1=$1;print}' | sed -e "s/ Simulator$//")
+          scheme=$(cat default)
+          if [ "$(ls -A | grep -i \\.xcworkspace\$)" ]; then 
+            filetype_parameter="workspace"
+            file_to_build="$(ls -A | grep -i \\.xcworkspace\$)"
+          else 
+            filetype_parameter="project"
+            file_to_build="$(ls -A | grep -i \\.xcodeproj\$)"
+          fi
+          file_to_build=$(echo $file_to_build | awk '{$1=$1;print}')
+          xcodebuild build-for-testing -scheme "$scheme" -"$filetype_parameter" "$file_to_build" -destination "platform=iOS Simulator,name=$device"
 
-      - name: Run Tests
+      - name: Test
         run: |
-          scheme=${{ steps.find-scheme.outputs.scheme }}
-          project=$(ls *.xcodeproj | head -n 1)
-          destination="platform=iOS Simulator,name=iPhone 15"
-          xcodebuild test-without-building \
-            -project "$project" \
-            -scheme "$scheme" \
-            -destination "$destination"
+          device=$(xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | awk '{$1=$1;print}' | sed -e "s/ Simulator$//")
+          scheme=$(cat default)
+          if [ "$(ls -A | grep -i \\.xcworkspace\$)" ]; then 
+            filetype_parameter="workspace"
+            file_to_build="$(ls -A | grep -i \\.xcworkspace\$)"
+          else 
+            filetype_parameter="project"
+            file_to_build="$(ls -A | grep -i \\.xcodeproj\$)"
+          fi
+          file_to_build=$(echo $file_to_build | awk '{$1=$1;print}')
+          xcodebuild test-without-building -scheme "$scheme" -"$filetype_parameter" "$file_to_build" -destination "platform=iOS Simulator,name=$device"
