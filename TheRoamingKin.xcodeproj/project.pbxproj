@@ -6,6 +6,26 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		B2CC20CD2DBDC63C007F1119 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = B2CC20CC2DBDC63C007F1119 /* FirebaseAnalytics */; };
+		B2CC20CF2DBDC63C007F1119 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = B2CC20CE2DBDC63C007F1119 /* FirebaseAuth */; };
+		B2CC20D12DBDC63C007F1119 /* FirebaseAuthCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = B2CC20D02DBDC63C007F1119 /* FirebaseAuthCombine-Community */; };
+		B2CC20D32DBDC63C007F1119 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = B2CC20D22DBDC63C007F1119 /* FirebaseCore */; };
+		B2CC20D52DBDC63C007F1119 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = B2CC20D42DBDC63C007F1119 /* FirebaseCrashlytics */; };
+		B2CC20D72DBDC63C007F1119 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = B2CC20D62DBDC63C007F1119 /* FirebaseFirestore */; };
+		B2CC20D92DBDC63C007F1119 /* FirebaseFirestoreCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = B2CC20D82DBDC63C007F1119 /* FirebaseFirestoreCombine-Community */; };
+		B2CC20DB2DBDC63C007F1119 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = B2CC20DA2DBDC63C007F1119 /* FirebaseMessaging */; };
+		B2CC20DD2DBDC63C007F1119 /* FirebasePerformance in Frameworks */ = {isa = PBXBuildFile; productRef = B2CC20DC2DBDC63C007F1119 /* FirebasePerformance */; };
+		B2CC20DF2DBDC63C007F1119 /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = B2CC20DE2DBDC63C007F1119 /* FirebaseRemoteConfig */; };
+		B2CC20E12DBDC63C007F1119 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = B2CC20E02DBDC63C007F1119 /* FirebaseStorage */; };
+		B2CC20E32DBDC63C007F1119 /* FirebaseStorageCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = B2CC20E22DBDC63C007F1119 /* FirebaseStorageCombine-Community */; };
+		B2CC20E62DBDC7AF007F1119 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = B2CC20E52DBDC7AF007F1119 /* Kingfisher */; };
+		B2CC20E92DBDC8A5007F1119 /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = B2CC20E82DBDC8A5007F1119 /* AlertToast */; };
+		B2CC210F2DBDCDEC007F1119 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = B2CC210E2DBDCDEC007F1119 /* GoogleSignIn */; };
+		B2CC21112DBDCDEC007F1119 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B2CC21102DBDCDEC007F1119 /* GoogleSignInSwift */; };
+		B2CC21142DBDCFA4007F1119 /* FacebookLogin in Frameworks */ = {isa = PBXBuildFile; productRef = B2CC21132DBDCFA4007F1119 /* FacebookLogin */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		B2CC207D2DBDB195007F1119 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +72,23 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B2CC20DB2DBDC63C007F1119 /* FirebaseMessaging in Frameworks */,
+				B2CC21142DBDCFA4007F1119 /* FacebookLogin in Frameworks */,
+				B2CC20E92DBDC8A5007F1119 /* AlertToast in Frameworks */,
+				B2CC20CD2DBDC63C007F1119 /* FirebaseAnalytics in Frameworks */,
+				B2CC21112DBDCDEC007F1119 /* GoogleSignInSwift in Frameworks */,
+				B2CC20DD2DBDC63C007F1119 /* FirebasePerformance in Frameworks */,
+				B2CC20D12DBDC63C007F1119 /* FirebaseAuthCombine-Community in Frameworks */,
+				B2CC210F2DBDCDEC007F1119 /* GoogleSignIn in Frameworks */,
+				B2CC20D52DBDC63C007F1119 /* FirebaseCrashlytics in Frameworks */,
+				B2CC20D32DBDC63C007F1119 /* FirebaseCore in Frameworks */,
+				B2CC20CF2DBDC63C007F1119 /* FirebaseAuth in Frameworks */,
+				B2CC20D72DBDC63C007F1119 /* FirebaseFirestore in Frameworks */,
+				B2CC20E62DBDC7AF007F1119 /* Kingfisher in Frameworks */,
+				B2CC20E12DBDC63C007F1119 /* FirebaseStorage in Frameworks */,
+				B2CC20D92DBDC63C007F1119 /* FirebaseFirestoreCombine-Community in Frameworks */,
+				B2CC20E32DBDC63C007F1119 /* FirebaseStorageCombine-Community in Frameworks */,
+				B2CC20DF2DBDC63C007F1119 /* FirebaseRemoteConfig in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -106,12 +143,30 @@
 			buildRules = (
 			);
 			dependencies = (
+				B2CC20C72DBDBCD3007F1119 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				B2CC206C2DBDB193007F1119 /* TheRoamingKin */,
 			);
 			name = TheRoamingKin;
 			packageProductDependencies = (
+				B2CC20CC2DBDC63C007F1119 /* FirebaseAnalytics */,
+				B2CC20CE2DBDC63C007F1119 /* FirebaseAuth */,
+				B2CC20D02DBDC63C007F1119 /* FirebaseAuthCombine-Community */,
+				B2CC20D22DBDC63C007F1119 /* FirebaseCore */,
+				B2CC20D42DBDC63C007F1119 /* FirebaseCrashlytics */,
+				B2CC20D62DBDC63C007F1119 /* FirebaseFirestore */,
+				B2CC20D82DBDC63C007F1119 /* FirebaseFirestoreCombine-Community */,
+				B2CC20DA2DBDC63C007F1119 /* FirebaseMessaging */,
+				B2CC20DC2DBDC63C007F1119 /* FirebasePerformance */,
+				B2CC20DE2DBDC63C007F1119 /* FirebaseRemoteConfig */,
+				B2CC20E02DBDC63C007F1119 /* FirebaseStorage */,
+				B2CC20E22DBDC63C007F1119 /* FirebaseStorageCombine-Community */,
+				B2CC20E52DBDC7AF007F1119 /* Kingfisher */,
+				B2CC20E82DBDC8A5007F1119 /* AlertToast */,
+				B2CC210E2DBDCDEC007F1119 /* GoogleSignIn */,
+				B2CC21102DBDCDEC007F1119 /* GoogleSignInSwift */,
+				B2CC21132DBDCFA4007F1119 /* FacebookLogin */,
 			);
 			productName = TheRoamingKin;
 			productReference = B2CC206A2DBDB193007F1119 /* TheRoamingKin.app */;
@@ -195,6 +250,14 @@
 			);
 			mainGroup = B2CC20612DBDB193007F1119;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				B2CC20C52DBDBCC3007F1119 /* XCRemoteSwiftPackageReference "SwiftLint" */,
+				B2CC20CB2DBDC63C007F1119 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				B2CC20E42DBDC7AF007F1119 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				B2CC20E72DBDC8A5007F1119 /* XCRemoteSwiftPackageReference "AlertToast" */,
+				B2CC210D2DBDCDEC007F1119 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+				B2CC21122DBDCFA4007F1119 /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B2CC206B2DBDB193007F1119 /* Products */;
 			projectDirPath = "";
@@ -265,6 +328,10 @@
 			isa = PBXTargetDependency;
 			target = B2CC20692DBDB193007F1119 /* TheRoamingKin */;
 			targetProxy = B2CC20872DBDB195007F1119 /* PBXContainerItemProxy */;
+		};
+		B2CC20C72DBDBCD3007F1119 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = B2CC20C62DBDBCD3007F1119 /* SwiftLintBuildToolPlugin */;
 		};
 /* End PBXTargetDependency section */
 
@@ -400,11 +467,13 @@
 				DEVELOPMENT_TEAM = HW57NPTVW8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -412,6 +481,10 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = LS.TheRoamingKin;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -428,11 +501,13 @@
 				DEVELOPMENT_TEAM = HW57NPTVW8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -440,6 +515,10 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = LS.TheRoamingKin;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -558,6 +637,150 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		B2CC20C52DBDBCC3007F1119 /* XCRemoteSwiftPackageReference "SwiftLint" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/realm/SwiftLint.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.59.1;
+			};
+		};
+		B2CC20CB2DBDC63C007F1119 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.12.0;
+			};
+		};
+		B2CC20E42DBDC7AF007F1119 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.3.2;
+			};
+		};
+		B2CC20E72DBDC8A5007F1119 /* XCRemoteSwiftPackageReference "AlertToast" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/elai950/AlertToast.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.3.9;
+			};
+		};
+		B2CC210D2DBDCDEC007F1119 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.0.0;
+			};
+		};
+		B2CC21122DBDCFA4007F1119 /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/facebook/facebook-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 14.1.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B2CC20C62DBDBCD3007F1119 /* SwiftLintBuildToolPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B2CC20C52DBDBCC3007F1119 /* XCRemoteSwiftPackageReference "SwiftLint" */;
+			productName = "plugin:SwiftLintBuildToolPlugin";
+		};
+		B2CC20CC2DBDC63C007F1119 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B2CC20CB2DBDC63C007F1119 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		B2CC20CE2DBDC63C007F1119 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B2CC20CB2DBDC63C007F1119 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		B2CC20D02DBDC63C007F1119 /* FirebaseAuthCombine-Community */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B2CC20CB2DBDC63C007F1119 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = "FirebaseAuthCombine-Community";
+		};
+		B2CC20D22DBDC63C007F1119 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B2CC20CB2DBDC63C007F1119 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		B2CC20D42DBDC63C007F1119 /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B2CC20CB2DBDC63C007F1119 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
+		};
+		B2CC20D62DBDC63C007F1119 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B2CC20CB2DBDC63C007F1119 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		B2CC20D82DBDC63C007F1119 /* FirebaseFirestoreCombine-Community */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B2CC20CB2DBDC63C007F1119 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = "FirebaseFirestoreCombine-Community";
+		};
+		B2CC20DA2DBDC63C007F1119 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B2CC20CB2DBDC63C007F1119 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
+		B2CC20DC2DBDC63C007F1119 /* FirebasePerformance */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B2CC20CB2DBDC63C007F1119 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebasePerformance;
+		};
+		B2CC20DE2DBDC63C007F1119 /* FirebaseRemoteConfig */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B2CC20CB2DBDC63C007F1119 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseRemoteConfig;
+		};
+		B2CC20E02DBDC63C007F1119 /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B2CC20CB2DBDC63C007F1119 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
+		B2CC20E22DBDC63C007F1119 /* FirebaseStorageCombine-Community */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B2CC20CB2DBDC63C007F1119 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = "FirebaseStorageCombine-Community";
+		};
+		B2CC20E52DBDC7AF007F1119 /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B2CC20E42DBDC7AF007F1119 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
+		B2CC20E82DBDC8A5007F1119 /* AlertToast */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B2CC20E72DBDC8A5007F1119 /* XCRemoteSwiftPackageReference "AlertToast" */;
+			productName = AlertToast;
+		};
+		B2CC210E2DBDCDEC007F1119 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B2CC210D2DBDCDEC007F1119 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		B2CC21102DBDCDEC007F1119 /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B2CC210D2DBDCDEC007F1119 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
+		};
+		B2CC21132DBDCFA4007F1119 /* FacebookLogin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B2CC21122DBDCFA4007F1119 /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */;
+			productName = FacebookLogin;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B2CC20622DBDB193007F1119 /* Project object */;
 }

@@ -1,0 +1,24 @@
+//
+//  Localizable.strings
+//  TheRoamingKin
+//
+//  Created by Lovice Sunuwar on 26/04/2025.
+//
+
+welcome_title = "Welcome";
+welcome_subtitle = "Login or signup to continue";
+app_name = "The Roaming Kin";
+app_tagline = "Adventure Awaits";
+button_google = "Continue with Google";
+button_facebook = "Continue with Facebook";
+button_apple = "Continue with Apple";
+continue_as_guest = "Continue as a guest";
+username_title = "Choose your identity";
+username_subtitle = "Pick a unique name for your journey";
+username_placeholder = "Enter username...";
+username_available = "Username is available";
+username_unavailable = "Username is already taken";
+avatar_title = "Choose your avatar";
+continue_button = "Continue";
+error_username_short = "Username must be at least 6 characters";
+error_username_long = "Username cannot exceed 24 characters";
