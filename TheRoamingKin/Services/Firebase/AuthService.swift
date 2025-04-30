@@ -99,7 +99,6 @@ final class AuthService {
         .eraseToAnyPublisher()
     }
 
-    
     func checkUsernameAvailablePublisher(username: String) -> AnyPublisher<Bool, Never> {
         Future { promise in
             self.db.collection("users")
@@ -114,7 +113,6 @@ final class AuthService {
         }
         .eraseToAnyPublisher()
     }
-
 
     func signInWithFacebook() {
         // TODO: Implement Facebook sign in
