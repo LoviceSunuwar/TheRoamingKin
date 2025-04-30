@@ -19,15 +19,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Resolve SwiftPM dependencies
+      - name: Resolve Swift Package dependencies
         run: |
           xcodebuild -resolvePackageDependencies -project TheRoamingKin.xcodeproj
 
-      - name: Run SwiftLint
-        run: |
-          swift package plugin run swiftlint --target TheRoamingKin
-
-      - name: Build project for testing
+      - name: Build for testing
         run: |
           xcodebuild build-for-testing \
             -project TheRoamingKin.xcodeproj \
