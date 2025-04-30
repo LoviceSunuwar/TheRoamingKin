@@ -4,11 +4,10 @@
 //
 //  Created by Lovice Sunuwar on 26/04/2025.
 //
-
 import SwiftUI
 
 struct LoginView: View {
-    @StateObject private var viewModel = LoginViewModel()
+    @ObservedObject var viewModel: LoginViewModel
 
     var body: some View {
         VStack(spacing: 20) {
@@ -22,7 +21,7 @@ struct LoginView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
 
-            Image(systemName: "figure.walk") // placeholder, you will replace later
+            Image(systemName: "figure.walk")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 150, height: 150)
@@ -43,7 +42,7 @@ struct LoginView: View {
                     text: NSLocalizedString("button_google", comment: ""),
                     backgroundColor: Color(red: 219/255, green: 68/255, blue: 55/255),
                     foregroundColor: .white,
-                    imageName: "globe", // placeholder icon
+                    imageName: "globe",
                     action: {
                         viewModel.signInWithGoogle()
                     }
@@ -53,7 +52,7 @@ struct LoginView: View {
                     text: NSLocalizedString("button_facebook", comment: ""),
                     backgroundColor: Color(red: 59/255, green: 89/255, blue: 152/255),
                     foregroundColor: .white,
-                    imageName: "f.square", // placeholder
+                    imageName: "f.square",
                     action: {
                         viewModel.signInWithFacebook()
                     }
@@ -71,21 +70,12 @@ struct LoginView: View {
             }
             .padding(.horizontal)
 
-            Button(action: {
-                // TODO: Continue as Guest
-            }) {
-                Text(LocalizedStringKey("continue_as_guest"))
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-                    .padding(.top, 8)
-            }
-
             Spacer()
         }
         .padding()
+        .onAppear {
+            print("🟥 [LoginView] onAppear - authState: \(viewModel.authState)")
+            print("🟥 [LoginView] LoginViewModel instance id: \(ObjectIdentifier(viewModel))")
+        }
     }
-}
-
-#Preview {
-    LoginView()
 }

@@ -1,26 +1,59 @@
-//
-//  LoginViewModel.swift
-//  TheRoamingKin
-//
-//  Created by Lovice Sunuwar on 26/04/2025.
-//
-
 import Foundation
 import Combine
+import FirebaseAuth
 
+enum AuthState {
+    case unauthenticated
+    case authenticated
+    case needsUsername
+}
+
+@MainActor
 final class LoginViewModel: ObservableObject {
+    @Published var authState: AuthState = .unauthenticated
+
+    private let authService = AuthService()
     private var cancellables = Set<AnyCancellable>()
-    private let authService = AuthService() // handle auth calls
 
     func signInWithGoogle() {
-        authService.signInWithGoogle()
+        authService.signInWithGooglePublisher()
+            .receive(on: DispatchQueue.main)
+            .sink(
+                receiveCompletion: { [weak self] completion in
+                    if case .failure(let error) = completion {
+                        print("🔥 Google sign-in failed: \(error.localizedDescription)")
+                        self?.authState = .unauthenticated
+                    }
+                },
+                receiveValue: { [weak self] user in
+                    print("✅ Google sign-in success. UID: \(user.uid)")
+                    guard let self = self else { return }
+
+                    self.authService.checkIfUserExistsPublisher(uid: user.uid)
+                        .receive(on: DispatchQueue.main)
+                        .sink(
+                            receiveCompletion: { _ in },
+                            receiveValue: { [weak self] exists in
+                                print("📢 checkIfUserExistsPublisher result: \(exists)")
+                                self?.authState = exists ? .authenticated : .needsUsername
+                                print("🔵 authState updated to: \(self?.authState ?? .unauthenticated)")
+                            }
+                        )
+                        .store(in: &self.cancellables)
+                }
+            )
+            .store(in: &cancellables)
+    }
+
+    func markAuthenticated() {
+        authState = .authenticated
     }
 
     func signInWithFacebook() {
-        authService.signInWithFacebook()
+        print("TODO: Facebook Sign-In not yet implemented")
     }
 
     func signInWithApple() {
-        authService.signInWithApple()
+        print("TODO: Apple Sign-In not yet implemented")
     }
 }

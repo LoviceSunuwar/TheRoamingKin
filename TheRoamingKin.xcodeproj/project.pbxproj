@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B2CC20CA2DBDBD02007F1119 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = B2CC20C82DBDBCFE007F1119 /* .gitignore */; };
 		B2CC20CD2DBDC63C007F1119 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = B2CC20CC2DBDC63C007F1119 /* FirebaseAnalytics */; };
 		B2CC20CF2DBDC63C007F1119 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = B2CC20CE2DBDC63C007F1119 /* FirebaseAuth */; };
 		B2CC20D12DBDC63C007F1119 /* FirebaseAuthCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = B2CC20D02DBDC63C007F1119 /* FirebaseAuthCombine-Community */; };
@@ -24,6 +25,7 @@
 		B2CC210F2DBDCDEC007F1119 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = B2CC210E2DBDCDEC007F1119 /* GoogleSignIn */; };
 		B2CC21112DBDCDEC007F1119 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B2CC21102DBDCDEC007F1119 /* GoogleSignInSwift */; };
 		B2CC21142DBDCFA4007F1119 /* FacebookLogin in Frameworks */ = {isa = PBXBuildFile; productRef = B2CC21132DBDCFA4007F1119 /* FacebookLogin */; };
+		B2CC21222DBDDC73007F1119 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = B2CC21202DBDDC73007F1119 /* LICENSE */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,11 +49,26 @@
 		B2CC206A2DBDB193007F1119 /* TheRoamingKin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TheRoamingKin.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B2CC207C2DBDB195007F1119 /* TheRoamingKinTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TheRoamingKinTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B2CC20862DBDB195007F1119 /* TheRoamingKinUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TheRoamingKinUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B2CC20C82DBDBCFE007F1119 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		B2CC21202DBDDC73007F1119 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		B2CC21162DBDD698007F1119 /* Exceptions for "TheRoamingKin" folder in "TheRoamingKin" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = B2CC20692DBDB193007F1119 /* TheRoamingKin */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		B2CC206C2DBDB193007F1119 /* TheRoamingKin */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				B2CC21162DBDD698007F1119 /* Exceptions for "TheRoamingKin" folder in "TheRoamingKin" target */,
+			);
 			path = TheRoamingKin;
 			sourceTree = "<group>";
 		};
@@ -112,10 +129,12 @@
 		B2CC20612DBDB193007F1119 = {
 			isa = PBXGroup;
 			children = (
+				B2CC21202DBDDC73007F1119 /* LICENSE */,
 				B2CC206C2DBDB193007F1119 /* TheRoamingKin */,
 				B2CC207F2DBDB195007F1119 /* TheRoamingKinTests */,
 				B2CC20892DBDB195007F1119 /* TheRoamingKinUITests */,
 				B2CC206B2DBDB193007F1119 /* Products */,
+				B2CC20C82DBDBCFE007F1119 /* .gitignore */,
 			);
 			sourceTree = "<group>";
 		};
@@ -275,6 +294,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B2CC20CA2DBDBD02007F1119 /* .gitignore in Resources */,
+				B2CC21222DBDDC73007F1119 /* LICENSE in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -467,6 +488,7 @@
 				DEVELOPMENT_TEAM = HW57NPTVW8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TheRoamingKin/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -501,6 +523,7 @@
 				DEVELOPMENT_TEAM = HW57NPTVW8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TheRoamingKin/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -533,10 +556,14 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = HW57NPTVW8;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = LS.TheRoamingKinTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -552,10 +579,14 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = HW57NPTVW8;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = LS.TheRoamingKinTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -570,6 +601,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = HW57NPTVW8;
 				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = LS.TheRoamingKinUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -587,6 +619,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = HW57NPTVW8;
 				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = LS.TheRoamingKinUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";

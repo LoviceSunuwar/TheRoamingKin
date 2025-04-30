@@ -8,22 +8,20 @@
 import SwiftUI
 
 struct ContentView: View {
+    @ObservedObject var viewModel: LoginViewModel
+    
     var body: some View {
-        NavigationStack { // basic navstack for screen flow
-            VStack {
-                Text("The Roaming Kin")
-                    .font(.largeTitle.bold())
-                    .padding()
-
-                Text("Welcome to the adventure!")
-                    .font(.title3)
-                    .foregroundStyle(.secondary)
+        NavigationStack {
+            switch viewModel.authState {
+            case .unauthenticated:
+                LoginView(viewModel: viewModel)
+                
+            case .needsUsername:
+                UsernamePickView(loginViewModel: viewModel)
+                
+            case .authenticated:
+                HomeView()
             }
-            .navigationTitle("Home")
         }
     }
-}
-
-#Preview {
-    ContentView()
 }

@@ -8,26 +8,24 @@
 import SwiftUI
 import FirebaseCore
 
+// MARK: - AppDelegate for Firebase
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication,
-                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+                     didFinishLaunchingWithOptions launchOptions:
+                     [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         FirebaseApp.configure()
-        
         return true
     }
 }
 
 @main
-struct YourApp: App {
-    // register app delegate for Firebase setup
+struct TheRoamingKinApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    @StateObject private var appCoordinator = AppCoordinator() // handle screen flow
-    
+    @StateObject private var viewModel = LoginViewModel()
+
     var body: some Scene {
         WindowGroup {
-            appCoordinator.start()
-                .environmentObject(appCoordinator) // pass down if needed
+            ContentView(viewModel: viewModel)
         }
     }
 }
-
