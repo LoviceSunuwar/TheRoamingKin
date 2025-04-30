@@ -11,7 +11,7 @@ jobs:
     runs-on: macos-14
 
     env:
-      ENABLE_BUILD_PLUGIN_EXECUTION: YES 
+      ENABLE_BUILD_PLUGIN_EXECUTION: NO 
 
     steps:
       - name: Set up Xcode 16.2
