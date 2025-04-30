@@ -202,6 +202,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				B214E5E12DC1B21C006AEF65 /* PBXTargetDependency */,
 				B2CC207E2DBDB195007F1119 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
@@ -225,6 +226,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				B214E5DF2DC1B217006AEF65 /* PBXTargetDependency */,
 				B2CC20882DBDB195007F1119 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
@@ -340,6 +342,14 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		B214E5DF2DC1B217006AEF65 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = B214E5DE2DC1B217006AEF65 /* SwiftLintBuildToolPlugin */;
+		};
+		B214E5E12DC1B21C006AEF65 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = B214E5E02DC1B21C006AEF65 /* SwiftLintBuildToolPlugin */;
+		};
 		B2CC207E2DBDB195007F1119 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = B2CC20692DBDB193007F1119 /* TheRoamingKin */;
@@ -723,6 +733,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		B214E5DE2DC1B217006AEF65 /* SwiftLintBuildToolPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B2CC20C52DBDBCC3007F1119 /* XCRemoteSwiftPackageReference "SwiftLint" */;
+			productName = "plugin:SwiftLintBuildToolPlugin";
+		};
+		B214E5E02DC1B21C006AEF65 /* SwiftLintBuildToolPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B2CC20C52DBDBCC3007F1119 /* XCRemoteSwiftPackageReference "SwiftLint" */;
+			productName = "plugin:SwiftLintBuildToolPlugin";
+		};
 		B2CC20C62DBDBCD3007F1119 /* SwiftLintBuildToolPlugin */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = B2CC20C52DBDBCC3007F1119 /* XCRemoteSwiftPackageReference "SwiftLint" */;
