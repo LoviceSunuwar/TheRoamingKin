@@ -1,14 +1,13 @@
-name: iOS Starter Workflow
+name: iOS CI (Build & Test)
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
-  build:
-    name: Build and Test on iPad Simulator
+  build-and-test:
     runs-on: macos-14
 
     steps:
@@ -17,36 +16,27 @@ jobs:
         with:
           xcode-version: '16.2'
 
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Detect Default Scheme
-        id: detect-scheme
+      - name: Resolve SwiftPM dependencies
         run: |
-          scheme_list=$(xcodebuild -list -json)
-          default_scheme=$(echo "$scheme_list" | ruby -e "require 'json'; puts JSON.parse(STDIN.read)['project']['targets'][0]")
-          echo "Detected scheme: $default_scheme"
-          echo "scheme=$default_scheme" >> "$GITHUB_OUTPUT"
+          xcodebuild -resolvePackageDependencies -project TheRoamingKin.xcodeproj
 
-      - name: Build
+      - name: Run SwiftLint
         run: |
-          scheme="${{ steps.detect-scheme.outputs.scheme }}"
-          filetype_parameter="project"
-          file_to_build=$(ls -A | grep -i '\.xcodeproj$')
+          swift package plugin run swiftlint --target TheRoamingKin
 
-          echo "Building $file_to_build with scheme $scheme"
+      - name: Build project for testing
+        run: |
           xcodebuild build-for-testing \
-            -scheme "$scheme" \
-            -project "$file_to_build" \
+            -project TheRoamingKin.xcodeproj \
+            -scheme TheRoamingKin \
             -destination 'platform=iOS Simulator,name=iPad (10th generation),OS=17.4'
 
-      - name: Test
+      - name: Run tests
         run: |
-          scheme="${{ steps.detect-scheme.outputs.scheme }}"
-          file_to_build=$(ls -A | grep -i '\.xcodeproj$')
-
-          echo "Testing $file_to_build with scheme $scheme"
           xcodebuild test-without-building \
-            -scheme "$scheme" \
-            -project "$file_to_build" \
+            -project TheRoamingKin.xcodeproj \
+            -scheme TheRoamingKin \
             -destination 'platform=iOS Simulator,name=iPad (10th generation),OS=17.4'
