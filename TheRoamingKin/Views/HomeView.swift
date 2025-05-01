@@ -20,32 +20,29 @@ struct HomeView: View {
 
     var body: some View {
         ZStack {
-            if let lockRegion = locationManager.lockedRegion {
-                Map(position: $locationManager.cameraPosition) {
-                    UserAnnotation()
-
-                    if let polygon = locationManager.cityBoundaryPolygon {
-                            MapPolygon(polygon)
-                                .stroke(.red, lineWidth: 2)
-                                .foregroundStyle(.clear) 
-                        }
-                }
-                .mapStyle(.standard(elevation: .realistic))
-                .edgesIgnoringSafeArea(.all)
-                .onMapCameraChange { context in
-                    let center = context.camera.centerCoordinate
-                    if isOutside(region: lockRegion, coordinate: center) {
-                        if let user = locationManager.currentLocation {
-                            locationManager.cameraPosition = .camera(
-                                MapCamera(centerCoordinate: user, distance: 500)
-                            )
-                        } else {
-                            locationManager.cameraPosition = .region(lockRegion)
+            if let region = locationManager.region {
+                Map(coordinateRegion: Binding(
+                    get: { region },
+                    set: { locationManager.region = $0 }
+                ),
+                interactionModes: [.all],
+                showsUserLocation: true,
+                annotationItems: locationManager.filteredPOIs) { poi in
+                    MapAnnotation(coordinate: poi.coordinate) {
+                        VStack(spacing: 2) {
+                            Image(systemName: poi.symbol)
+                                .font(.title2)
+                                .foregroundColor(.blue)
+                            Text(poi.category.capitalized)
+                                .font(.caption2)
+                                .multilineTextAlignment(.center)
                         }
                     }
                 }
+                .edgesIgnoringSafeArea(.all)
+                .mapStyle(.imagery)
             } else {
-                ProgressView("Loading map...")
+                ProgressView("Fetching your location...")
             }
 
             VStack {
@@ -65,18 +62,6 @@ struct HomeView: View {
         .onAppear {
             locationManager.requestPermission()
         }
-    }
-
-    private func isOutside(region: MKCoordinateRegion, coordinate: CLLocationCoordinate2D) -> Bool {
-        let lat = coordinate.latitude
-        let lon = coordinate.longitude
-
-        let minLat = region.center.latitude - region.span.latitudeDelta / 2
-        let maxLat = region.center.latitude + region.span.latitudeDelta / 2
-        let minLon = region.center.longitude - region.span.longitudeDelta / 2
-        let maxLon = region.center.longitude + region.span.longitudeDelta / 2
-
-        return lat < minLat || lat > maxLat || lon < minLon || lon > maxLon
     }
 
     @ViewBuilder
