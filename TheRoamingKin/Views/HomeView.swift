@@ -4,6 +4,7 @@
 //
 //  Created by Lovice Sunuwar on 26/04/2025.
 //
+
 import SwiftUI
 import MapKit
 import AVFoundation
@@ -21,17 +22,22 @@ struct HomeView: View {
     var body: some View {
         ZStack {
             if let region = locationManager.region {
-                Map(coordinateRegion: Binding(
-                    get: { region },
-                    set: { locationManager.region = $0 }
-                ),
-                interactionModes: [.all],
-                showsUserLocation: true,
-                annotationItems: locationManager.filteredPOIs) { poi in
+                Map(
+                    coordinateRegion: Binding(
+                        get: { region },
+                        set: { newRegion in
+                            locationManager.region = newRegion
+                            locationManager.zoomLevel = newRegion.span.latitudeDelta
+                        }
+                    ),
+                    interactionModes: [.all],
+                    showsUserLocation: true,
+                    annotationItems: locationManager.filteredPOIs
+                ) { poi in
                     MapAnnotation(coordinate: poi.coordinate) {
                         VStack(spacing: 2) {
                             Image(systemName: poi.symbol)
-                                .font(.title2)
+                                .font(.system(size: locationManager.annotationSize)) 
                                 .foregroundColor(.blue)
                             Text(poi.category.capitalized)
                                 .font(.caption2)
@@ -40,7 +46,7 @@ struct HomeView: View {
                     }
                 }
                 .edgesIgnoringSafeArea(.all)
-                .mapStyle(.imagery)
+                .mapStyle(.standard(pointsOfInterest: .excludingAll))
             } else {
                 ProgressView("Fetching your location...")
             }
@@ -76,6 +82,7 @@ struct HomeView: View {
         }
     }
 }
+
 
 struct BottomControlCard: View {
     @Binding var isTracking: Bool

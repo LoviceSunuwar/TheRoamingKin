@@ -53,18 +53,55 @@ extension POI: Hashable {
         lhs.id == rhs.id
     }
 }
-
 @MainActor
 class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var region: MKCoordinateRegion?
-    @Published var filteredPOIs: [POI] = []
     @Published var userLocation: CLLocationCoordinate2D?
+    @Published var zoomLevel: Double = 0.05
 
     private var lastCity: String?
     private var hasSavedCityToFirestore = false
 
+    private var allPOIs: [POI] = []
+
     private let manager = CLLocationManager()
     private let geocoder = CLGeocoder()
+
+    var filteredPOIs: [POI] {
+        guard let region = region else { return [] }
+
+        let visiblePOIs = allPOIs.filter { poi in
+            region.contains(poi.coordinate)
+        }
+
+        let limit: Int
+        switch zoomLevel {
+        case 0..<0.02: // Very zoomed in
+            limit = visiblePOIs.count // Show everything
+        case 0.02..<0.05: // Medium zoom
+            limit = min(20, visiblePOIs.count)
+        case 0.05..<0.1: // Zoomed out
+            limit = min(10, visiblePOIs.count)
+        default: // Very far zoomed out
+            limit = min(5, visiblePOIs.count)
+        }
+
+        return Array(visiblePOIs.prefix(limit))
+    }
+
+
+    var annotationSize: CGFloat {
+        switch zoomLevel {
+        case 0..<0.02:
+            return 28
+        case 0.02..<0.05:
+            return 22
+        case 0.05..<0.1:
+            return 18
+        default:
+            return 14
+        }
+    }
 
     override init() {
         super.init()
@@ -118,7 +155,6 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
 
     private func fetchPOIsNearby(center: CLLocationCoordinate2D) async {
         let searchRegion = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1))
-        let userLocation = CLLocation(latitude: center.latitude, longitude: center.longitude)
 
         let categories = [
             "airport", "amusementpark", "aquarium", "bakery", "beach",
@@ -138,17 +174,13 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             let search = MKLocalSearch(request: request)
             if let response = try? await search.start() {
                 for item in response.mapItems {
-                    let coord = item.placemark.coordinate
-                    let loc = CLLocation(latitude: coord.latitude, longitude: coord.longitude)
-                    if userLocation.distance(from: loc) <= 5000 {
-                        pois.append(POI(coordinate: coord, category: category))
-                    }
+                    pois.append(POI(coordinate: item.placemark.coordinate, category: category))
                 }
             }
         }
 
         DispatchQueue.main.async {
-            self.filteredPOIs = pois
+            self.allPOIs = pois
         }
     }
 
@@ -165,5 +197,17 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         } catch {
             print("❌ Firestore save error: \(error.localizedDescription)")
         }
+    }
+}
+
+extension MKCoordinateRegion {
+    func contains(_ coordinate: CLLocationCoordinate2D) -> Bool {
+        let latMin = center.latitude - span.latitudeDelta / 2
+        let latMax = center.latitude + span.latitudeDelta / 2
+        let lonMin = center.longitude - span.longitudeDelta / 2
+        let lonMax = center.longitude + span.longitudeDelta / 2
+
+        return (latMin...latMax).contains(coordinate.latitude) &&
+               (lonMin...lonMax).contains(coordinate.longitude)
     }
 }
