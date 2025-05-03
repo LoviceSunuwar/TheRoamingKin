@@ -12,11 +12,18 @@ struct Achievement: Identifiable, Hashable {
     let id = UUID()
     let title: String
     let description: String
-    let imageName: String // SF Symbol name for now
+    let imageName: String
+    let bonusAttribute: BonusAttribute?
+
+    struct BonusAttribute: Hashable {
+        let attributeName: String // like "intelligence", "strength"
+        let points: Int
+    }
 }
 
+
 @MainActor
-class AchievementManager: ObservableObject {
+class AchievementUnlockManager: ObservableObject {
     @Published var unlockedAchievements: [Achievement] = []
 
     private var unlockedTitles: Set<String> = []
