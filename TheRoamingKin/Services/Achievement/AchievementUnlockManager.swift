@@ -7,45 +7,87 @@
 
 import Foundation
 import UserNotifications
+import SwiftUI
 
-struct Achievement: Identifiable, Hashable {
-    let id = UUID()
+// Achievement.swift
+
+import Foundation
+
+struct Achievement: Identifiable, Codable, Equatable {
+    var id: UUID = UUID()
     let title: String
     let description: String
     let imageName: String
-    let bonusAttribute: BonusAttribute?
+    let attributeAffected: AttributeType
+    let points: Int
 
-    struct BonusAttribute: Hashable {
-        let attributeName: String // like "intelligence", "strength"
-        let points: Int
+    enum AttributeType: String, Codable {
+        case strength
+        case constitution
+        case dexterity
+        case intelligence
+        case wisdom
+        case none
     }
 }
 
+import Foundation
+import SwiftUI
+import UserNotifications
+import FirebaseFirestore
+import FirebaseAuth
 
 @MainActor
 class AchievementUnlockManager: ObservableObject {
+    static let shared = AchievementUnlockManager()
+
     @Published var unlockedAchievements: [Achievement] = []
+    @Published var showToast: Bool = false
+    @Published var toastMessage: String = ""
 
-    private var unlockedTitles: Set<String> = []
+    private let db = Firestore.firestore()
 
-    func unlockAchievement(title: String, description: String, imageName: String) {
-        guard !unlockedTitles.contains(title) else {
-            print("❌ Achievement already unlocked: \(title)")
+    func unlock(achievement: Achievement, attributesManager: AttributesManager, scenePhase: ScenePhase) {
+        guard !unlockedAchievements.contains(achievement) else {
+            print("❌ Achievement already unlocked: \(achievement.title)")
             return
         }
 
-        let achievement = Achievement(title: title, description: description, imageName: imageName)
         unlockedAchievements.append(achievement)
-        unlockedTitles.insert(title)
+        AchievementService.uploadAchievement(achievement) // Save immediately to Firebase
 
-        sendPushNotification(for: achievement)
-        print("🏆 Achievement unlocked: \(title)")
+        if achievement.attributeAffected != .none {
+            attributesManager.claimPoints(for: achievement.attributeAffected.rawValue, points: achievement.points)
+            AttributesService.uploadAttributes( // Save latest attributes after points added
+                strength: attributesManager.strength,
+                constitution: attributesManager.constitution,
+                dexterity: attributesManager.dexterity,
+                intelligence: attributesManager.intelligence,
+                wisdom: attributesManager.wisdom
+            )
+        }
+
+        let message = "🎖️ \(achievement.title) unlocked! +\(achievement.points) \(achievement.attributeAffected.rawValue.capitalized)"
+
+        if scenePhase == .active {
+            toastMessage = message
+            withAnimation {
+                showToast = true
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+                withAnimation {
+                    self.showToast = false
+                }
+            }
+        } else {
+            sendLocalNotification(message: message)
+        }
     }
 
-    private func sendPushNotification(for achievement: Achievement) {
+    private func sendLocalNotification(message: String) {
         let content = UNMutableNotificationContent()
-        content.title = "🏆 Achievement Unlocked!"
-        content.body = "\(achievement.title): \(achievement.description)"
+        content.title = "Achievement Unlocked!"
+        content.body = message
         content.sound = .default
 
         let request = UNNotificationRequest(
@@ -55,5 +97,48 @@ class AchievementUnlockManager: ObservableObject {
         )
 
         UNUserNotificationCenter.current().add(request)
+    }
+
+    func loadUnlockedAchievements() async {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+
+        do {
+            let snapshot = try await db.collection("users")
+                .document(uid)
+                .collection("achievements")
+                .getDocuments()
+
+            let achievements = snapshot.documents.compactMap { doc -> Achievement? in
+                guard let title = doc.data()["title"] as? String,
+                      let description = doc.data()["description"] as? String,
+                      let imageName = doc.data()["imageName"] as? String
+                else { return nil }
+
+                // Match to local achievement template to get attributeAffected and points
+                if let template = AchievementLibrary.allAchievements.first(where: { $0.title == title }) {
+                    return Achievement(
+                        id: UUID(uuidString: doc.documentID) ?? UUID(),
+                        title: title,
+                        description: description,
+                        imageName: imageName,
+                        attributeAffected: template.attributeAffected,
+                        points: template.points
+                    )
+                }
+                return nil
+            }
+
+            DispatchQueue.main.async {
+                self.unlockedAchievements = achievements
+                print("✅ Synced achievements from Firebase")
+            }
+        } catch {
+            print("❌ Failed to load achievements: \(error.localizedDescription)")
+        }
+    }
+
+    func resetUnlockedAchievements() {
+        unlockedAchievements = []
+        print("🧹 Cleared unlocked achievements on logout")
     }
 }

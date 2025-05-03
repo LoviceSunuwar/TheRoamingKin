@@ -4,40 +4,69 @@
 //
 //  Created by Lovice Sunuwar on 02/05/2025.
 //
-
 import Foundation
+import FirebaseFirestore
+import FirebaseAuth
 
 @MainActor
 class AttributesManager: ObservableObject {
-    @Published var strength: Int = 10
-    @Published var constitution: Int = 10
-    @Published var dexterity: Int = 10
-    @Published var intelligence: Int = 10
-    @Published var wisdom: Int = 10
+    static let shared = AttributesManager()
 
-    private var lastClaimDates: [String: Date] = [:]
+    @Published var strength: Int = 0
+    @Published var constitution: Int = 0
+    @Published var dexterity: Int = 0
+    @Published var intelligence: Int = 0
+    @Published var wisdom: Int = 0
 
-    func canClaim(for attribute: String) -> Bool {
-        guard let lastClaimDate = lastClaimDates[attribute] else { return true }
-        return !Calendar.current.isDateInToday(lastClaimDate)
-    }
+    private let db = Firestore.firestore()
 
     func claimPoints(for attribute: String, points: Int) {
-        guard canClaim(for: attribute) else {
-            print("❌ Already claimed for \(attribute) today")
-            return
+        switch attribute {
+        case "strength":
+            strength += points
+        case "constitution":
+            constitution += points
+        case "dexterity":
+            dexterity += points
+        case "intelligence":
+            intelligence += points
+        case "wisdom":
+            wisdom += points
+        default:
+            break
         }
+    }
 
-        switch attribute.lowercased() {
-        case "strength": strength += points
-        case "constitution": constitution += points
-        case "dexterity": dexterity += points
-        case "intelligence": intelligence += points
-        case "wisdom": wisdom += points
-        default: break
+    func loadAttributes() async {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+
+        do {
+            let document = try await db.collection("users")
+                .document(uid)
+                .collection("attributes")
+                .document("current")
+                .getDocument()
+
+            if let data = document.data() {
+                DispatchQueue.main.async {
+                    self.strength = data["strength"] as? Int ?? 0
+                    self.constitution = data["constitution"] as? Int ?? 0
+                    self.dexterity = data["dexterity"] as? Int ?? 0
+                    self.intelligence = data["intelligence"] as? Int ?? 0
+                    self.wisdom = data["wisdom"] as? Int ?? 0
+                    print("✅ Synced attributes from Firebase")
+                }
+            }
+        } catch {
+            print("❌ Failed to load attributes: \(error.localizedDescription)")
         }
+    }
 
-        lastClaimDates[attribute] = Date()
-        print("✅ \(points) points added to \(attribute.capitalized)")
+    func resetAttributes() {
+        strength = 0
+        constitution = 0
+        dexterity = 0
+        intelligence = 0
+        wisdom = 0
     }
 }

@@ -15,7 +15,6 @@ final class LoginViewModel: ObservableObject {
 
     private let authService = AuthService()
     private var cancellables = Set<AnyCancellable>()
-    private let achievementManager = AchievementManager()
 
     func signInWithGoogle() {
         authService.signInWithGooglePublisher()
@@ -28,17 +27,20 @@ final class LoginViewModel: ObservableObject {
                     }
                 },
                 receiveValue: { [weak self] user in
+                    guard let self else { return }
                     print("✅ Google sign-in success. UID: \(user.uid)")
-                    guard let self = self else { return }
 
                     self.authService.checkIfUserExistsPublisher(uid: user.uid)
                         .receive(on: DispatchQueue.main)
                         .sink(
                             receiveCompletion: { _ in },
                             receiveValue: { [weak self] exists in
-                                print("📢 checkIfUserExistsPublisher result: \(exists)")
-                                self?.authState = exists ? .authenticated : .needsUsername
-                                print("🔵 authState updated to: \(self?.authState ?? .unauthenticated)")
+                                guard let self else { return }
+                                self.authState = exists ? .authenticated : .needsUsername
+                                print("🔵 authState updated to: \(self.authState)")
+                                if self.authState == .authenticated {
+                                    self.loadUserData()
+                                }
                             }
                         )
                         .store(in: &self.cancellables)
@@ -49,27 +51,53 @@ final class LoginViewModel: ObservableObject {
 
     func markAuthenticated() {
         authState = .authenticated
-
-        achievementManager.unlockAchievement(
-                    title: AchievementLibrary.allAchievements.first(where: { $0.title == "Guild Registration" })?.title ?? "Guild Registration",
-                    description: AchievementLibrary.allAchievements.first(where: { $0.title == "Guild Registration" })?.description ?? "Welcome!",
-                    imageName: AchievementLibrary.allAchievements.first(where: { $0.title == "Guild Registration" })?.imageName ?? "person.crop.circle.badge.checkmark"
-                )
-
-                shouldShowWelcomeToast = true
+        if let guildRegistrationAchievement = AchievementLibrary.allAchievements.first(where: { $0.title == "Guild Registration" }) {
+            AchievementUnlockManager.shared.unlock(
+                achievement: guildRegistrationAchievement,
+                attributesManager: AttributesManager.shared,
+                scenePhase: .active
+            )
+        }
+        shouldShowWelcomeToast = true
     }
 
-    func signInWithFacebook() {
-        print("TODO: Facebook Sign-In not yet implemented")
-    }
-
-    func signInWithApple() {
-        print("TODO: Apple Sign-In not yet implemented")
+    private func loadUserData() {
+        Task {
+            await AchievementUnlockManager.shared.loadUnlockedAchievements()
+            await AttributesManager.shared.loadAttributes()
+        }
     }
 
     func logout() {
         authService.logout()
         authState = .unauthenticated
+        AchievementUnlockManager.shared.resetUnlockedAchievements()
+        AttributesManager.shared.resetAttributes()
     }
 
+
+
+    func signInWithFacebook() {
+        print("🟦 Facebook Sign-In not yet implemented. Placeholder function called.")
+        // Future: Integrate Facebook SDK login flow here
+    }
+
+    func signInWithApple() {
+        print("⚫️ Apple Sign-In not yet implemented. Placeholder function called.")
+        // Future: Integrate Apple Sign-In flow here
+    }
+
+}
+
+
+
+
+func signInWithFacebook() {
+    print("🟦 Facebook Sign-In not yet implemented. Placeholder function called.")
+    // Future: Integrate Facebook SDK login flow here
+}
+
+func signInWithApple() {
+    print("⚫️ Apple Sign-In not yet implemented. Placeholder function called.")
+    // Future: Integrate Apple Sign-In flow here
 }

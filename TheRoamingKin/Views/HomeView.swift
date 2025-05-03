@@ -17,9 +17,12 @@ enum BottomSheetType: Identifiable {
 struct HomeView: View {
     @State private var isTracking = false
     @State private var showingSheet: BottomSheetType?
-    @State private var showToast = false //
     @StateObject private var locationManager = LocationManager()
     @StateObject private var sessionManager = SessionManager()
+    @StateObject private var attributesManager = AttributesManager()
+    @ObservedObject private var proximityMonitor = ProximityMonitor()
+    @StateObject private var achievementUnlockManager = AchievementUnlockManager.shared
+    @Environment(\.scenePhase) private var scenePhase
     @EnvironmentObject private var loginViewModel: LoginViewModel
 
     var body: some View {
@@ -71,21 +74,33 @@ struct HomeView: View {
         }
         .onAppear {
             locationManager.requestPermission()
-
             if loginViewModel.shouldShowWelcomeToast {
-                showToastMessage()
+                AchievementUnlockManager.shared.toastMessage = "🎖️ Guild Registration Unlocked!"
+                withAnimation {
+                    achievementUnlockManager.showToast = true
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                    withAnimation {
+                        achievementUnlockManager.showToast = false
+                    }
+                    loginViewModel.shouldShowWelcomeToast = false
+                }
             }
         }
-        .onChange(of: loginViewModel.shouldShowWelcomeToast) { _, newValue in
-            if newValue {
-                showToastMessage()
-            }
+        .onChange(of: locationManager.userLocation) { _, newLocation in
+            guard let location = newLocation else { return }
+            proximityMonitor.checkProximity(
+                to: locationManager.filteredPOIs,
+                userLocation: location,
+                attributesManager: attributesManager,
+                scenePhase: scenePhase
+            )
         }
 
         .overlay(
             toastView()
-                .opacity(showToast ? 1 : 0)
-                .animation(.easeInOut, value: showToast)
+                .opacity(achievementUnlockManager.showToast ? 1 : 0)
+                .animation(.easeInOut, value: achievementUnlockManager.showToast)
                 .padding(.top, 50),
             alignment: .top
         )
@@ -104,14 +119,13 @@ struct HomeView: View {
         }
     }
 
-    // MARK: - Toast
     private func toastView() -> some View {
         HStack(spacing: 12) {
             Image(systemName: "star.fill")
                 .foregroundColor(.white)
                 .font(.title2)
 
-            Text("🎖️ Guild Registration Unlocked!")
+            Text(achievementUnlockManager.toastMessage)
                 .foregroundColor(.white)
                 .font(.headline)
                 .multilineTextAlignment(.center)
@@ -121,20 +135,7 @@ struct HomeView: View {
         .cornerRadius(12)
         .padding(.horizontal)
     }
-
-    private func showToastMessage() {
-        withAnimation {
-            showToast = true
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { // show for 5 seconds
-            withAnimation {
-                showToast = false
-                loginViewModel.shouldShowWelcomeToast = false
-            }
-        }
-    }
 }
-
 
 // MARK: - Bottom Control Panel
 struct BottomControlCard: View {
@@ -220,6 +221,7 @@ struct SmallControlButton: View {
         }
     }
 }
+
 
 // MARK: - Achievements View
 struct AchievementsView: View {
