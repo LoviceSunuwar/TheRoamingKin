@@ -64,6 +64,11 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		B265B9CB2DC59B1C003E8CE8 /* Library */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Library;
+			sourceTree = "<group>";
+		};
 		B2CC206C2DBDB193007F1119 /* TheRoamingKin */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -129,6 +134,7 @@
 		B2CC20612DBDB193007F1119 = {
 			isa = PBXGroup;
 			children = (
+				B265B9CB2DC59B1C003E8CE8 /* Library */,
 				B2CC21202DBDDC73007F1119 /* LICENSE */,
 				B2CC206C2DBDB193007F1119 /* TheRoamingKin */,
 				B2CC207F2DBDB195007F1119 /* TheRoamingKinTests */,
@@ -165,6 +171,7 @@
 				B2CC20C72DBDBCD3007F1119 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
+				B265B9CB2DC59B1C003E8CE8 /* Library */,
 				B2CC206C2DBDB193007F1119 /* TheRoamingKin */,
 			);
 			name = TheRoamingKin;
@@ -493,6 +500,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = TheRoamingKin/TheRoamingKin.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = HW57NPTVW8;
@@ -528,6 +536,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = TheRoamingKin/TheRoamingKin.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = HW57NPTVW8;

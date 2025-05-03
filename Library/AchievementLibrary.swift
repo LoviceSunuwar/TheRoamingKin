@@ -9,6 +9,8 @@ import Foundation
 
 struct AchievementLibrary {
     static let allAchievements: [Achievement] = [
+        Achievement(title: "Guild Registration", description: "Welcome to the Adventurer’s Guild! Your journey begins now.", imageName: "person.crop.circle.badge.checkmark"),
+
         Achievement(title: "Walker", description: "Walked 1000 steps", imageName: "figure.walk"),
         Achievement(title: "Explorer", description: "Walked 5000 steps", imageName: "map.fill"),
         Achievement(title: "Endurance Pro", description: "Walked 10,000 steps", imageName: "figure.hiking"),

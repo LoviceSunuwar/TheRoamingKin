@@ -11,9 +11,11 @@ enum AuthState {
 @MainActor
 final class LoginViewModel: ObservableObject {
     @Published var authState: AuthState = .unauthenticated
+    @Published var shouldShowWelcomeToast: Bool = false
 
     private let authService = AuthService()
     private var cancellables = Set<AnyCancellable>()
+    private let achievementManager = AchievementManager()
 
     func signInWithGoogle() {
         authService.signInWithGooglePublisher()
@@ -47,6 +49,14 @@ final class LoginViewModel: ObservableObject {
 
     func markAuthenticated() {
         authState = .authenticated
+
+        achievementManager.unlockAchievement(
+                    title: AchievementLibrary.allAchievements.first(where: { $0.title == "Guild Registration" })?.title ?? "Guild Registration",
+                    description: AchievementLibrary.allAchievements.first(where: { $0.title == "Guild Registration" })?.description ?? "Welcome!",
+                    imageName: AchievementLibrary.allAchievements.first(where: { $0.title == "Guild Registration" })?.imageName ?? "person.crop.circle.badge.checkmark"
+                )
+
+                shouldShowWelcomeToast = true
     }
 
     func signInWithFacebook() {
@@ -56,4 +66,10 @@ final class LoginViewModel: ObservableObject {
     func signInWithApple() {
         print("TODO: Apple Sign-In not yet implemented")
     }
+
+    func logout() {
+        authService.logout()
+        authState = .unauthenticated
+    }
+
 }

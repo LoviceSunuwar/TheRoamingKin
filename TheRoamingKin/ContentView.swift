@@ -8,19 +8,20 @@
 import SwiftUI
 
 struct ContentView: View {
-    @ObservedObject var viewModel: LoginViewModel
-    
+    @StateObject var viewModel: LoginViewModel
+
     var body: some View {
-        NavigationStack {
+        Group {
             switch viewModel.authState {
             case .unauthenticated:
                 LoginView(viewModel: viewModel)
-                
+
             case .needsUsername:
                 UsernamePickView(loginViewModel: viewModel)
-                
+
             case .authenticated:
                 HomeView()
+                    .environmentObject(viewModel)
             }
         }
     }

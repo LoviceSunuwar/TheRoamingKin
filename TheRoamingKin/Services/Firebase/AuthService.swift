@@ -136,3 +136,15 @@ enum AuthError: Error {
     case missingIDToken
     case unknown
 }
+
+extension AuthService {
+    func logout() {
+        do {
+            try Auth.auth().signOut()
+            GIDSignIn.sharedInstance.signOut()
+            print("✅ Successfully signed out")
+        } catch {
+            print("❌ Failed to sign out: \(error.localizedDescription)")
+        }
+    }
+}
