@@ -58,6 +58,8 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var region: MKCoordinateRegion?
     @Published var userLocation: CLLocationCoordinate2D?
     @Published var zoomLevel: Double = 0.05
+    @Published var currentSpeed: Double = 0.0 // meters per second
+
 
     private var lastCity: String?
     private var hasSavedCityToFirestore = false
@@ -117,6 +119,8 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
 
+
+
         DispatchQueue.main.async {
             self.userLocation = location.coordinate
             if self.region == nil {
@@ -125,6 +129,13 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
                     span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
                 )
             }
+
+            if let speed = locations.last?.speed, speed >= 0 {
+                self.currentSpeed = speed // Speed in meters per second
+            } else {
+                self.currentSpeed = 0
+            }
+
             Task {
                 await self.updateCity(for: location)
             }

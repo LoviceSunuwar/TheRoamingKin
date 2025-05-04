@@ -1,41 +1,16 @@
 //
-//  AchievementManager.swift
+//  AchievementUnlockManager.swift
 //  TheRoamingKin
 //
-//  Created by Lovice Sunuwar on 02/05/2025.
+//  Created by Lovice Sunuwar on 29/04/2025.
 //
-
-import Foundation
-import UserNotifications
-import SwiftUI
-
-// Achievement.swift
-
-import Foundation
-
-struct Achievement: Identifiable, Codable, Equatable {
-    var id: UUID = UUID()
-    let title: String
-    let description: String
-    let imageName: String
-    let attributeAffected: AttributeType
-    let points: Int
-
-    enum AttributeType: String, Codable {
-        case strength
-        case constitution
-        case dexterity
-        case intelligence
-        case wisdom
-        case none
-    }
-}
 
 import Foundation
 import SwiftUI
 import UserNotifications
 import FirebaseFirestore
 import FirebaseAuth
+import CoreLocation
 
 @MainActor
 class AchievementUnlockManager: ObservableObject {
@@ -50,15 +25,18 @@ class AchievementUnlockManager: ObservableObject {
     func unlock(achievement: Achievement, attributesManager: AttributesManager, scenePhase: ScenePhase) {
         guard !unlockedAchievements.contains(achievement) else {
             print("❌ Achievement already unlocked: \(achievement.title)")
+            showAlreadyUnlockedToast(for: achievement.title)
             return
         }
 
         unlockedAchievements.append(achievement)
-        AchievementService.uploadAchievement(achievement) // Save immediately to Firebase
+
+        AchievementService.uploadAchievement(achievement)
 
         if achievement.attributeAffected != .none {
             attributesManager.claimPoints(for: achievement.attributeAffected.rawValue, points: achievement.points)
-            AttributesService.uploadAttributes( // Save latest attributes after points added
+
+            AttributesService.uploadAttributes(
                 strength: attributesManager.strength,
                 constitution: attributesManager.constitution,
                 dexterity: attributesManager.dexterity,
@@ -70,17 +48,28 @@ class AchievementUnlockManager: ObservableObject {
         let message = "🎖️ \(achievement.title) unlocked! +\(achievement.points) \(achievement.attributeAffected.rawValue.capitalized)"
 
         if scenePhase == .active {
-            toastMessage = message
+            showToastMessage(message)
+        } else {
+            sendLocalNotification(message: message)
+        }
+    }
+
+    private func showAlreadyUnlockedToast(for title: String) {
+        let message = "⭐ Already unlocked: \(title)"
+        showToastMessage(message)
+    }
+
+    private func showToastMessage(_ message: String) {
+        DispatchQueue.main.async {
+            self.toastMessage = message
             withAnimation {
-                showToast = true
+                self.showToast = true
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
                 withAnimation {
                     self.showToast = false
                 }
             }
-        } else {
-            sendLocalNotification(message: message)
         }
     }
 
@@ -114,7 +103,6 @@ class AchievementUnlockManager: ObservableObject {
                       let imageName = doc.data()["imageName"] as? String
                 else { return nil }
 
-                // Match to local achievement template to get attributeAffected and points
                 if let template = AchievementLibrary.allAchievements.first(where: { $0.title == title }) {
                     return Achievement(
                         id: UUID(uuidString: doc.documentID) ?? UUID(),
@@ -140,5 +128,51 @@ class AchievementUnlockManager: ObservableObject {
     func resetUnlockedAchievements() {
         unlockedAchievements = []
         print("🧹 Cleared unlocked achievements on logout")
+    }
+}
+
+@MainActor
+extension AchievementUnlockManager {
+
+    func attemptUnlockAchievements(
+        locationManager: LocationManager,
+        capturedLabel: String?,
+        sessionActive: Bool,
+        attributesManager: AttributesManager,
+        scenePhase: ScenePhase
+    ) {
+        guard let userLocation = locationManager.userLocation else { return }
+        let location = CLLocation(latitude: userLocation.latitude, longitude: userLocation.longitude)
+
+        for achievement in AchievementLibrary.allAchievements {
+
+            if unlockedAchievements.contains(achievement) {
+                continue
+            }
+
+            if achievement.requiredSessionActive && !sessionActive {
+                continue
+            }
+
+            if let requiredPOI = achievement.triggerPOICategory {
+                let matchingPOI = locationManager.filteredPOIs.first {
+                    $0.category.lowercased() == requiredPOI.lowercased() &&
+                    CLLocation(latitude: $0.coordinate.latitude, longitude: $0.coordinate.longitude)
+                        .distance(from: location) <= 100
+                }
+                if matchingPOI == nil {
+                    continue
+                }
+            }
+
+            if let requiredLabel = achievement.requiredPhotoLabel?.lowercased() {
+                if capturedLabel?.lowercased().contains(requiredLabel) != true {
+                    continue
+                }
+            }
+
+            print("🏆 Unlocking dynamic achievement: \(achievement.title)")
+            unlock(achievement: achievement, attributesManager: attributesManager, scenePhase: scenePhase)
+        }
     }
 }

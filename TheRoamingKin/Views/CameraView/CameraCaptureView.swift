@@ -9,7 +9,7 @@ import SwiftUI
 import AVFoundation
 
 struct CameraCaptureView: View {
-    @StateObject private var cameraViewModel = CameraViewModel()
+    @StateObject var cameraViewModel: CameraViewModel
 
     var body: some View {
         VStack(spacing: 24) {
@@ -43,42 +43,28 @@ struct CameraCaptureView: View {
             .cornerRadius(12)
             .padding(.horizontal)
 
-            HStack(spacing: 16) {
-                // Retry Button - Only show if image is captured
-                if cameraViewModel.capturedImage != nil {
-                    Button(action: {
-                        cameraViewModel.capturedImage = nil
-                        cameraViewModel.startCamera()
-                    }) {
-                        Text("Retry")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .frame(width: 80, height: 50)
-                            .background(Color.blue)
-                            .cornerRadius(10)
-                    }
+            Button(action: {
+                if cameraViewModel.capturedImage == nil {
+                    cameraViewModel.capturePhoto()
                 }
-
-                // Submit Button
-                Button(action: {
-                    if cameraViewModel.capturedImage == nil {
-                        cameraViewModel.capturePhoto()
-                    } else {
-                        // Upload logic here
-                        print("✅ Image ready to upload.")
-                    }
-                }) {
-                    Text("Submit")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 50)
-                        .background(Color.blue)
-                        .cornerRadius(10)
-                }
+            }) {
+                Text("Capture")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                    .background(Color.blue)
+                    .cornerRadius(10)
             }
             .padding(.horizontal)
         }
         .padding()
+        .onChange(of: cameraViewModel.didUnlockAchievement) { _, didUnlock in
+            if didUnlock {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    cameraViewModel.isCameraPresented = false
+                }
+            }
+        }
     }
 }

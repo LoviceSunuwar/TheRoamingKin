@@ -12,11 +12,11 @@ import FirebaseAuth
 class AttributesManager: ObservableObject {
     static let shared = AttributesManager()
 
-    @Published var strength: Int = 0
-    @Published var constitution: Int = 0
-    @Published var dexterity: Int = 0
-    @Published var intelligence: Int = 0
-    @Published var wisdom: Int = 0
+    @Published var strength: Int = 10
+    @Published var constitution: Int = 10
+    @Published var dexterity: Int = 10
+    @Published var intelligence: Int = 10
+    @Published var wisdom: Int = 10
 
     private let db = Firestore.firestore()
 
@@ -49,11 +49,11 @@ class AttributesManager: ObservableObject {
 
             if let data = document.data() {
                 DispatchQueue.main.async {
-                    self.strength = data["strength"] as? Int ?? 0
-                    self.constitution = data["constitution"] as? Int ?? 0
-                    self.dexterity = data["dexterity"] as? Int ?? 0
-                    self.intelligence = data["intelligence"] as? Int ?? 0
-                    self.wisdom = data["wisdom"] as? Int ?? 0
+                    self.strength = data["strength"] as? Int ?? 10
+                    self.constitution = data["constitution"] as? Int ?? 10
+                    self.dexterity = data["dexterity"] as? Int ?? 10
+                    self.intelligence = data["intelligence"] as? Int ?? 10
+                    self.wisdom = data["wisdom"] as? Int ?? 10
                     print("✅ Synced attributes from Firebase")
                 }
             }
@@ -63,10 +63,10 @@ class AttributesManager: ObservableObject {
     }
 
     func resetAttributes() {
-        strength = 0
-        constitution = 0
-        dexterity = 0
-        intelligence = 0
-        wisdom = 0
+        strength = 10
+        constitution = 10
+        dexterity = 10
+        intelligence = 10
+        wisdom = 10
     }
 }

@@ -24,6 +24,7 @@ struct HomeView: View {
     @StateObject private var achievementUnlockManager = AchievementUnlockManager.shared
     @Environment(\.scenePhase) private var scenePhase
     @EnvironmentObject private var loginViewModel: LoginViewModel
+    @StateObject private var speedMonitor = SpeedMonitor()
 
     var body: some View {
         ZStack {
@@ -52,7 +53,7 @@ struct HomeView: View {
                     }
                 }
                 .edgesIgnoringSafeArea(.all)
-                .mapStyle(.imagery)
+                .mapStyle(.standard(pointsOfInterest: .excludingAll))
             } else {
                 ProgressView("Fetching your location...")
             }
@@ -96,7 +97,13 @@ struct HomeView: View {
                 scenePhase: scenePhase
             )
         }
-
+        .onReceive(locationManager.$currentSpeed) { speed in
+            speedMonitor.checkSpeed(
+                speedMetersPerSecond: speed,
+                attributesManager: attributesManager,
+                scenePhase: scenePhase
+            )
+        }
         .overlay(
             toastView()
                 .opacity(achievementUnlockManager.showToast ? 1 : 0)
@@ -110,7 +117,21 @@ struct HomeView: View {
     private func sheetView(for type: BottomSheetType) -> some View {
         switch type {
         case .camera:
-            CameraCaptureView()
+            CameraCaptureView(
+                cameraViewModel: CameraViewModel(
+                    locationManager: locationManager,
+                    attributesManager: attributesManager,
+                    isSessionActive: sessionManager.sessionActive,
+                    isCameraPresented: Binding(
+                        get: { showingSheet != nil },
+                        set: { isPresented in
+                            if !isPresented {
+                                showingSheet = nil
+                            }
+                        }
+                    )
+                )
+            )
         case .achievements:
             AchievementsView()
         case .profile:
@@ -222,18 +243,61 @@ struct SmallControlButton: View {
     }
 }
 
-
 // MARK: - Achievements View
+
 struct AchievementsView: View {
+    @StateObject private var achievementManager = AchievementUnlockManager.shared
+
+    let columns = [
+        GridItem(.flexible(), spacing: 16),
+        GridItem(.flexible(), spacing: 16)
+    ]
+
     var body: some View {
-        VStack {
-            Text("🏆 Achievements View")
-                .font(.largeTitle.bold())
-            Spacer()
+        ScrollView {
+            LazyVGrid(columns: columns, spacing: 16) {
+                ForEach(achievementManager.unlockedAchievements) { achievement in
+                    AchievementCard(achievement: achievement)
+                }
+            }
+            .padding()
         }
-        .padding()
+        .navigationTitle("🏆 Achievements")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
+
+// MARK: - Achievement Card
+
+struct AchievementCard: View {
+    let achievement: Achievement
+
+    var body: some View {
+        VStack(spacing: 12) {
+            Image(systemName: achievement.imageName)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 50, height: 50)
+                .padding()
+                .background(Color.blue.opacity(0.1))
+                .clipShape(Circle())
+
+            Text(achievement.title)
+                .font(.headline)
+                .multilineTextAlignment(.center)
+
+            Text("+\(achievement.points) \(achievement.attributeAffected.rawValue.capitalized)")
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+        .padding()
+        .frame(maxWidth: .infinity)
+        .background(Color(.secondarySystemBackground))
+        .cornerRadius(16)
+        .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
+    }
+}
+
 
 // MARK: - Profile View
 struct ProfileView: View {
