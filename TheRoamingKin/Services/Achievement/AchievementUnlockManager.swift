@@ -136,7 +136,7 @@ extension AchievementUnlockManager {
 
     func attemptUnlockAchievements(
         locationManager: LocationManager,
-        capturedLabel: String?,
+        capturedLabels: [String]?,
         sessionActive: Bool,
         attributesManager: AttributesManager,
         scenePhase: ScenePhase
@@ -145,7 +145,6 @@ extension AchievementUnlockManager {
         let location = CLLocation(latitude: userLocation.latitude, longitude: userLocation.longitude)
 
         for achievement in AchievementLibrary.allAchievements {
-
             if unlockedAchievements.contains(achievement) {
                 continue
             }
@@ -154,24 +153,38 @@ extension AchievementUnlockManager {
                 continue
             }
 
+            // 🛑 Only photo-based achievements
+            if achievement.requiredPhotoLabel == nil {
+                continue
+            }
+
+            print("📍 Checking achievement: \(achievement.title)")
+
             if let requiredPOI = achievement.triggerPOICategory {
                 let matchingPOI = locationManager.filteredPOIs.first {
                     $0.category.lowercased() == requiredPOI.lowercased() &&
                     CLLocation(latitude: $0.coordinate.latitude, longitude: $0.coordinate.longitude)
-                        .distance(from: location) <= 100
+                        .distance(from: location) <= 150
                 }
+
                 if matchingPOI == nil {
+                    print("🚫 No matching POI found nearby for: \(requiredPOI)")
                     continue
+                } else {
+                    print("✅ Found matching POI: \(requiredPOI)")
                 }
             }
 
             if let requiredLabel = achievement.requiredPhotoLabel?.lowercased() {
-                if capturedLabel?.lowercased().contains(requiredLabel) != true {
-                    continue
+                if let labels = capturedLabels {
+                    if !labels.contains(where: { $0.lowercased() == requiredLabel }) {
+                        print("🚫 Required label '\(requiredLabel)' not found in captured labels")
+                        continue
+                    }
                 }
             }
 
-            print("🏆 Unlocking dynamic achievement: \(achievement.title)")
+            print("🏆 Unlocking dynamic photo-based achievement: \(achievement.title)")
             unlock(achievement: achievement, attributesManager: attributesManager, scenePhase: scenePhase)
         }
     }

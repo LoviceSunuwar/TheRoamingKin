@@ -33,13 +33,12 @@ class CameraViewModel: NSObject, ObservableObject {
             guard let self else { return }
             guard granted else { return }
             self.configure()
-            self.queue.async {
-                Task { @MainActor in
-                    self.session.startRunning()
-                }
+            DispatchQueue.global(qos: .userInitiated).async {
+                self.session.startRunning()
             }
         }
     }
+
 
     func stopCamera() {
         session.stopRunning()
@@ -84,11 +83,11 @@ class CameraViewModel: NSObject, ObservableObject {
                 print("🖼️ Captured labels: \(labels)")
 
                 AchievementUnlockManager.shared.attemptUnlockAchievements(
-                    locationManager: self.locationManager,
-                    capturedLabel: labels.first,
-                    sessionActive: self.isSessionActive,
-                    attributesManager: self.attributesManager,
-                    scenePhase: .active
+                    locationManager: locationManager,
+                    capturedLabels: labels,  // ✅ use the array you just made
+                    sessionActive: isSessionActive,  // ✅ also fix this
+                    attributesManager: attributesManager,
+                    scenePhase: .active // ✅ (or whatever you want to pass)
                 )
 
                 DispatchQueue.main.async {  // ✅ Always update Published inside main thread
