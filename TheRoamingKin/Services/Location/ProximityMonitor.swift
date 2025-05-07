@@ -23,41 +23,21 @@ class ProximityMonitor: ObservableObject {
     private var timer: Timer?
 
     private let proximityConfigs: [ProximityConfig] = [
-        // Basic tutorial / welcome achievement
-        ProximityConfig(title: "Guild Registration", category: "home", distanceThreshold: 100, stayDuration: 1),
-
-        // Movement and walking achievements
-        ProximityConfig(title: "Walker", category: "walk", distanceThreshold: 0, stayDuration: 0),
-        ProximityConfig(title: "Explorer", category: "walk", distanceThreshold: 0, stayDuration: 0),
-        ProximityConfig(title: "Endurance Pro", category: "walk", distanceThreshold: 0, stayDuration: 0),
-        ProximityConfig(title: "Sprinter", category: "run", distanceThreshold: 0, stayDuration: 0),
-
-        // Specific places
-        ProximityConfig(title: "Bookworm", category: "library", distanceThreshold: 100, stayDuration: 5),
-        ProximityConfig(title: "Fisherman", category: "beach", distanceThreshold: 100, stayDuration: 5),
-        ProximityConfig(title: "Naturalist", category: "tree", distanceThreshold: 100, stayDuration: 5),
-        ProximityConfig(title: "Voyager", category: "road", distanceThreshold: 0, stayDuration: 0),
-        ProximityConfig(title: "Shuttle Explorer", category: "highway", distanceThreshold: 0, stayDuration: 0),
-        ProximityConfig(title: "Campfire Hero", category: "campground", distanceThreshold: 100, stayDuration: 5),
-        ProximityConfig(title: "Night Owl", category: "walk_night", distanceThreshold: 0, stayDuration: 0),
-        ProximityConfig(title: "Cafe Hopper", category: "cafe", distanceThreshold: 100, stayDuration: 5),
-        ProximityConfig(title: "Meditator", category: "park", distanceThreshold: 100, stayDuration: 5),
-        ProximityConfig(title: "Lifesaver", category: "hospital", distanceThreshold: 100, stayDuration: 5),
-        ProximityConfig(title: "Performer", category: "theater", distanceThreshold: 100, stayDuration: 5),
-        ProximityConfig(title: "Storyteller", category: "museum", distanceThreshold: 100, stayDuration: 5),
-        ProximityConfig(title: "Strength Booster", category: "active_calories", distanceThreshold: 0, stayDuration: 0),
-        ProximityConfig(title: "Forest Whisperer", category: "national park", distanceThreshold: 100, stayDuration: 5),
-        ProximityConfig(title: "Scholar", category: "university", distanceThreshold: 100, stayDuration: 5),
-        ProximityConfig(title: "Trail Blazer", category: "poi", distanceThreshold: 0, stayDuration: 0)
+        ProximityConfig(title: "Healer's Path", category: "hospital", distanceThreshold: 150, stayDuration: 5),
+        ProximityConfig(title: "Cafe Lover", category: "cafe", distanceThreshold: 150, stayDuration: 5),
+        ProximityConfig(title: "Museum Wanderer", category: "museum", distanceThreshold: 150, stayDuration: 5),
+        ProximityConfig(title: "Forever learner", category: "university",distanceThreshold: 200, stayDuration: 5)
     ]
-
 
     func checkProximity(
         to pois: [POI],
         userLocation: CLLocationCoordinate2D,
         attributesManager: AttributesManager,
-        scenePhase: ScenePhase
+        scenePhase: ScenePhase,
+        sessionActive: Bool
     ) {
+        guard sessionActive else { return } // 🛑 Must be during active session
+
         let userLoc = CLLocation(latitude: userLocation.latitude, longitude: userLocation.longitude)
 
         for config in proximityConfigs {
@@ -66,13 +46,20 @@ class ProximityMonitor: ObservableObject {
                 let distance = userLoc.distance(from: poiLoc)
 
                 if distance <= config.distanceThreshold {
-                    if timer == nil {
-                        startTimer(
-                            attributesManager: attributesManager,
-                            scenePhase: scenePhase,
-                            achievementTitle: config.title,
-                            stayDuration: config.stayDuration
-                        )
+                    // Before starting timer, double check achievement doesn't require photo
+                    if let achievement = AchievementLibrary.allAchievements.first(where: { $0.title == config.title }) {
+                        if achievement.requiredPhotoLabel == nil {
+                            if timer == nil {
+                                startTimer(
+                                    attributesManager: attributesManager,
+                                    scenePhase: scenePhase,
+                                    achievementTitle: config.title,
+                                    stayDuration: config.stayDuration
+                                )
+                            }
+                        } else {
+                            print("⛔ Skipping proximity unlock: \(achievement.title) needs a photo capture")
+                        }
                     }
                     return
                 }

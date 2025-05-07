@@ -17,7 +17,7 @@ struct AchievementLibrary {
 
         // 🔹 Location + photo achievements (POI + image label)
         Achievement(
-            title: "Scholar",
+            title: "Scholar Advance",
             description: "Clicked a picture of a book near a University",
             imageName: "graduationcap.fill",
             attributeAffected: .intelligence,
@@ -73,6 +73,15 @@ struct AchievementLibrary {
             attributeAffected: .intelligence,
             points: 2,
             triggerPOICategory: "museum",
+            requiredSessionActive: true
+        ),
+        Achievement(
+            title: "Forever learner",
+            description: "You seek knowledge",
+            imageName: "building.columns.fill",
+            attributeAffected: .intelligence,
+            points: 2,
+            triggerPOICategory: "university",
             requiredSessionActive: true
         ),
 

@@ -94,7 +94,8 @@ struct HomeView: View {
                 to: locationManager.filteredPOIs,
                 userLocation: location,
                 attributesManager: attributesManager,
-                scenePhase: scenePhase
+                scenePhase: scenePhase,
+                sessionActive: sessionManager.sessionActive
             )
         }
         .onReceive(locationManager.$currentSpeed) { speed in
