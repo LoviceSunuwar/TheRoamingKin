@@ -9,6 +9,7 @@ import Foundation
 import UserNotifications
 import CoreLocation
 import HealthKit
+import SwiftUI
 
 @MainActor
 class SessionManager: NSObject, ObservableObject, @preconcurrency CLLocationManagerDelegate {
@@ -20,6 +21,11 @@ class SessionManager: NSObject, ObservableObject, @preconcurrency CLLocationMana
     private var locationManager: CLLocationManager?
     private var healthManager = HealthManager()
     private var sessionTimer: Timer?
+    private var healthTimer: Timer?
+
+    private var stepsAtStart: Double = 0
+    private var caloriesAtStart: Double = 0
+    private var distanceAtStart: Double = 0
 
     override init() {
         super.init()
@@ -27,19 +33,28 @@ class SessionManager: NSObject, ObservableObject, @preconcurrency CLLocationMana
     }
 
     func startSession() {
-        sessionActive = true
-        sessionStartTime = Date()
-        sessionEndTime = Calendar.current.date(byAdding: .hour, value: 2, to: sessionStartTime!)
-        remainingTime = sessionEndTime!.timeIntervalSinceNow
-
-        startTrackingLocation()
-        startTimer()
-        scheduleStartNotification()
-        scheduleEndNotification()
-
         Task {
+            // ✅ First wait until achievements are fully loaded
+            while AchievementUnlockManager.shared.isLoaded == false {
+                print("⏳ Waiting for achievements to load...")
+                try? await Task.sleep(nanoseconds: 200_000_000) // 0.2 seconds
+            }
+
+            print("✅ Achievements loaded. Starting session!")
+
+            sessionActive = true
+            sessionStartTime = Date()
+            sessionEndTime = Calendar.current.date(byAdding: .hour, value: 2, to: sessionStartTime!)
+            remainingTime = sessionEndTime!.timeIntervalSinceNow
+
+            startTrackingLocation()
+            startTimer()
+            scheduleStartNotification()
+            scheduleEndNotification()
+
             await healthManager.requestAuthorization()
             await fetchHealthDataAtStart()
+            startHealthTracking()
         }
     }
 
@@ -47,6 +62,8 @@ class SessionManager: NSObject, ObservableObject, @preconcurrency CLLocationMana
         sessionActive = false
         sessionTimer?.invalidate()
         sessionTimer = nil
+        healthTimer?.invalidate()
+        healthTimer = nil
         locationManager?.stopUpdatingLocation()
         removePendingNotifications()
     }
@@ -64,6 +81,13 @@ class SessionManager: NSObject, ObservableObject, @preconcurrency CLLocationMana
         }
     }
 
+    private func startHealthTracking() {
+        healthTimer = Timer.scheduledTimer(withTimeInterval: 30.0, repeats: true) { _ in
+            Task { @MainActor in
+                await self.checkHealthAchievements()
+            }
+        }
+    }
 
     private func startTrackingLocation() {
         locationManager = CLLocationManager()
@@ -74,13 +98,57 @@ class SessionManager: NSObject, ObservableObject, @preconcurrency CLLocationMana
     }
 
     private func fetchHealthDataAtStart() async {
-        let steps = await healthManager.fetchTodayStepCount()
-        let calories = await healthManager.fetchTodayActiveCalories()
-        let distance = await healthManager.fetchTodayWalkingDistance()
+        stepsAtStart = await healthManager.fetchTodayStepCount()
+        caloriesAtStart = await healthManager.fetchTodayActiveCalories()
+        distanceAtStart = await healthManager.fetchTodayWalkingDistance()
 
-        print("👣 Steps at session start: \(Int(steps)) steps")
-        print("🔥 Calories burned at session start: \(Int(calories)) kcal")
-        print("🚶‍♂️ Distance walked at session start: \(String(format: "%.2f", distance/1000)) km")
+        print("👣 Steps at session start: \(Int(stepsAtStart)) steps")
+        print("🔥 Calories burned at session start: \(Int(caloriesAtStart)) kcal")
+        print("🚶‍♂️ Distance walked at session start: \(String(format: "%.2f", distanceAtStart/1000)) km")
+    }
+
+    private func checkHealthAchievements() async {
+        let currentSteps = await healthManager.fetchTodayStepCount()
+        let currentCalories = await healthManager.fetchTodayActiveCalories()
+        let currentDistance = await healthManager.fetchTodayWalkingDistance()
+
+        let stepsGained = currentSteps - stepsAtStart
+        let caloriesGained = currentCalories - caloriesAtStart
+        let distanceGained = currentDistance - distanceAtStart
+
+        print("📈 Session Progress - Steps: \(Int(stepsGained)), Calories: \(Int(caloriesGained)), Distance: \(String(format: "%.2f", distanceGained/1000)) km")
+
+        for achievement in AchievementLibrary.allAchievements {
+            guard achievement.requiredSessionActive else { continue }
+            guard let requiredValue = achievement.requiredHealthValue else { continue }
+
+            switch achievement.healthMetricType {
+            case .steps:
+                if stepsGained >= requiredValue {
+                    unlockHealthAchievement(title: achievement.title)
+                }
+            case .distance:
+                if distanceGained >= requiredValue {
+                    unlockHealthAchievement(title: achievement.title)
+                }
+            case .calories:
+                if caloriesGained >= requiredValue {
+                    unlockHealthAchievement(title: achievement.title)
+                }
+            case .none:
+                continue
+            }
+        }
+    }
+
+    private func unlockHealthAchievement(title: String) {
+        if let achievement = AchievementLibrary.allAchievements.first(where: { $0.title == title }) {
+            AchievementUnlockManager.shared.unlock(
+                achievement: achievement,
+                attributesManager: AttributesManager.shared,
+                scenePhase: UIApplication.shared.connectedScenes.first?.activationState == .foregroundActive ? .active : .background
+            )
+        }
     }
 
     private func requestNotificationPermission() {
@@ -133,11 +201,10 @@ class SessionManager: NSObject, ObservableObject, @preconcurrency CLLocationMana
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
     }
 
-    // CLLocationManagerDelegate (if needed for future)
+    // CLLocationManagerDelegate (future use)
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         Task { @MainActor in
-            // You can track user's movement here if needed later
+            // You can add tracking logic here if needed later
         }
     }
-
 }

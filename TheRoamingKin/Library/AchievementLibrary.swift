@@ -112,7 +112,41 @@ struct AchievementLibrary {
             points: 2,
             requiredPhotoLabel: "cloud",
             requiredSessionActive: true
-        )
+        ),
+
+        // Health Based:
+
+        Achievement(
+            title: "First Steps",
+            description: "Walked 500 steps in a session",
+            imageName: "figure.walk",
+            attributeAffected: .dexterity,
+            points: 3,
+            requiredSessionActive: true,
+            healthMetricType: .steps,
+            requiredHealthValue: 500
+        ),
+        Achievement(
+            title: "Marathoner",
+            description: "Walked 5 km in a session",
+            imageName: "figure.run",
+            attributeAffected: .dexterity,
+            points: 5,
+            requiredSessionActive: true,
+            healthMetricType: .distance,
+            requiredHealthValue: 5000 // meters
+        ),
+        Achievement(
+            title: "Energy Burner",
+            description: "Burned 500 calories in a session",
+            imageName: "flame.fill",
+            attributeAffected: .strength,
+            points: 4,
+            requiredSessionActive: true,
+            healthMetricType: .calories,
+            requiredHealthValue: 500
+        ),
+
     ]
 
 }

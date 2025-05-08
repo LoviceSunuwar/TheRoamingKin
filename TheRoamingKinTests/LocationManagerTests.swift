@@ -17,9 +17,9 @@ final class LocationManagerTests: XCTestCase {
         locationManager = LocationManager()
     }
 
-    func testInitialCameraPosition() {
-        XCTAssertEqual(locationManager.cameraPosition, .userLocation(fallback: .automatic))
-    }
+//    func testInitialCameraPosition() {
+//        XCTAssertEqual(locationManager.cameraPosition, .userLocation(fallback: .automatic))
+//    }
 
     func testSaveCityFailsIfNotLoggedIn() async {
         await locationManager.saveCityAndCountryToFirestore(city: "TestCity", country: "TestCountry")

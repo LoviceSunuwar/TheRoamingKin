@@ -20,19 +20,20 @@ class AchievementUnlockManager: ObservableObject {
     @Published var showToast: Bool = false
     @Published var toastMessage: String = ""
 
+    private var unlockedIDs: Set<UUID> = []
+    @Published var isLoaded: Bool = false
     private let db = Firestore.firestore()
 
     func unlock(achievement: Achievement, attributesManager: AttributesManager, scenePhase: ScenePhase) {
         Task {
-            do {
-                // 1. Local check
-                if unlockedAchievements.contains(where: { $0.id == achievement.id }) {
-                    print("❌ Already unlocked locally: \(achievement.title)")
-                    showAlreadyUnlockedToast(for: achievement.title)
-                    return
-                }
+            // 🔥 1. Local fast Set check
+            if unlockedIDs.contains(achievement.id) {
+                print("✅ Already unlocked locally: \(achievement.title) - Skipping unlock")
+                return
+            }
 
-                // 2. Remote Firestore check
+            do {
+                // 🔥 2. Remote Firestore check
                 guard let uid = Auth.auth().currentUser?.uid else { return }
                 let snapshot = try await db.collection("users")
                     .document(uid)
@@ -41,13 +42,17 @@ class AchievementUnlockManager: ObservableObject {
                     .getDocument()
 
                 if snapshot.exists {
-                    print("❌ Already unlocked on Firestore: \(achievement.title)")
-                    showAlreadyUnlockedToast(for: achievement.title)
+                    print("✅ Already unlocked on Firestore: \(achievement.title) - Syncing locally")
+                    DispatchQueue.main.async {
+                        self.unlockedAchievements.append(achievement)
+                        self.unlockedIDs.insert(achievement.id) // Sync Set too
+                    }
                     return
                 }
 
-                // 3. Safe to unlock
+                // 🔥 3. Safe to unlock
                 unlockedAchievements.append(achievement)
+                unlockedIDs.insert(achievement.id)
 
                 AchievementService.uploadAchievement(achievement)
 
@@ -71,11 +76,14 @@ class AchievementUnlockManager: ObservableObject {
                     sendLocalNotification(message: message)
                 }
 
+                print("🏆 Achievement unlocked and saved: \(achievement.title)")
+
             } catch {
                 print("❌ Error checking Firestore for achievement: \(error.localizedDescription)")
             }
         }
     }
+
     private func showAlreadyUnlockedToast(for title: String) {
         let message = "⭐ Already unlocked: \(title)"
         showToastMessage(message)
@@ -127,7 +135,6 @@ class AchievementUnlockManager: ObservableObject {
 
                 if let template = AchievementLibrary.allAchievements.first(where: { $0.title == title }) {
                     return Achievement(
-                        id: UUID(uuidString: doc.documentID) ?? UUID(),
                         title: title,
                         description: description,
                         imageName: imageName,
@@ -140,6 +147,8 @@ class AchievementUnlockManager: ObservableObject {
 
             DispatchQueue.main.async {
                 self.unlockedAchievements = achievements
+                self.unlockedIDs = Set(achievements.map { $0.id })
+                self.isLoaded = true
                 print("✅ Synced achievements from Firebase")
             }
         } catch {
@@ -149,6 +158,8 @@ class AchievementUnlockManager: ObservableObject {
 
     func resetUnlockedAchievements() {
         unlockedAchievements = []
+        unlockedIDs = []
+        isLoaded = false
         print("🧹 Cleared unlocked achievements on logout")
     }
 }
@@ -164,8 +175,6 @@ extension AchievementUnlockManager {
     ) {
         guard let userLocation = locationManager.userLocation else { return }
         let location = CLLocation(latitude: userLocation.latitude, longitude: userLocation.longitude)
-
-        let unlockedIDs = Set(unlockedAchievements.map { $0.id })
 
         for achievement in AchievementLibrary.allAchievements {
             if unlockedIDs.contains(achievement.id) {

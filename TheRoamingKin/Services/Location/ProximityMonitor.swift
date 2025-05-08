@@ -100,14 +100,24 @@ class ProximityMonitor: ObservableObject {
     ) {
         resetTimer()
 
-        if let achievement = AchievementLibrary.allAchievements.first(where: { $0.title == title }) {
-            AchievementUnlockManager.shared.unlock(
-                achievement: achievement,
-                attributesManager: attributesManager,
-                scenePhase: scenePhase
-            )
+        guard let achievement = AchievementLibrary.allAchievements.first(where: { $0.title == title }) else {
+            return
         }
+
+        // 🛑 Check if already unlocked
+        if AchievementUnlockManager.shared.unlockedAchievements.contains(where: { $0.id == achievement.id }) {
+            print("✅ Already unlocked previously: \(achievement.title) - Skipping unlock")
+            return
+        }
+
+        // 🏆 If not unlocked yet, unlock it
+        AchievementUnlockManager.shared.unlock(
+            achievement: achievement,
+            attributesManager: attributesManager,
+            scenePhase: scenePhase
+        )
     }
+
 }
 
 // MARK: - CLLocationCoordinate2D Equatable Support
