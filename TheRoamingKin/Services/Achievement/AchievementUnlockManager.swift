@@ -23,37 +23,59 @@ class AchievementUnlockManager: ObservableObject {
     private let db = Firestore.firestore()
 
     func unlock(achievement: Achievement, attributesManager: AttributesManager, scenePhase: ScenePhase) {
-        guard !unlockedAchievements.contains(achievement) else {
-            print("❌ Achievement already unlocked: \(achievement.title)")
-            showAlreadyUnlockedToast(for: achievement.title)
-            return
-        }
+        Task {
+            do {
+                // 1. Local check
+                if unlockedAchievements.contains(where: { $0.id == achievement.id }) {
+                    print("❌ Already unlocked locally: \(achievement.title)")
+                    showAlreadyUnlockedToast(for: achievement.title)
+                    return
+                }
 
-        unlockedAchievements.append(achievement)
+                // 2. Remote Firestore check
+                guard let uid = Auth.auth().currentUser?.uid else { return }
+                let snapshot = try await db.collection("users")
+                    .document(uid)
+                    .collection("achievements")
+                    .document(achievement.id.uuidString)
+                    .getDocument()
 
-        AchievementService.uploadAchievement(achievement)
+                if snapshot.exists {
+                    print("❌ Already unlocked on Firestore: \(achievement.title)")
+                    showAlreadyUnlockedToast(for: achievement.title)
+                    return
+                }
 
-        if achievement.attributeAffected != .none {
-            attributesManager.claimPoints(for: achievement.attributeAffected.rawValue, points: achievement.points)
+                // 3. Safe to unlock
+                unlockedAchievements.append(achievement)
 
-            AttributesService.uploadAttributes(
-                strength: attributesManager.strength,
-                constitution: attributesManager.constitution,
-                dexterity: attributesManager.dexterity,
-                intelligence: attributesManager.intelligence,
-                wisdom: attributesManager.wisdom
-            )
-        }
+                AchievementService.uploadAchievement(achievement)
 
-        let message = "🎖️ \(achievement.title) unlocked! +\(achievement.points) \(achievement.attributeAffected.rawValue.capitalized)"
+                if achievement.attributeAffected != .none {
+                    attributesManager.claimPoints(for: achievement.attributeAffected.rawValue, points: achievement.points)
 
-        if scenePhase == .active {
-            showToastMessage(message)
-        } else {
-            sendLocalNotification(message: message)
+                    AttributesService.uploadAttributes(
+                        strength: attributesManager.strength,
+                        constitution: attributesManager.constitution,
+                        dexterity: attributesManager.dexterity,
+                        intelligence: attributesManager.intelligence,
+                        wisdom: attributesManager.wisdom
+                    )
+                }
+
+                let message = "🎖️ \(achievement.title) unlocked! +\(achievement.points) \(achievement.attributeAffected.rawValue.capitalized)"
+
+                if scenePhase == .active {
+                    showToastMessage(message)
+                } else {
+                    sendLocalNotification(message: message)
+                }
+
+            } catch {
+                print("❌ Error checking Firestore for achievement: \(error.localizedDescription)")
+            }
         }
     }
-
     private func showAlreadyUnlockedToast(for title: String) {
         let message = "⭐ Already unlocked: \(title)"
         showToastMessage(message)
@@ -133,7 +155,6 @@ class AchievementUnlockManager: ObservableObject {
 
 @MainActor
 extension AchievementUnlockManager {
-
     func attemptUnlockAchievements(
         locationManager: LocationManager,
         capturedLabels: [String]?,
@@ -144,8 +165,11 @@ extension AchievementUnlockManager {
         guard let userLocation = locationManager.userLocation else { return }
         let location = CLLocation(latitude: userLocation.latitude, longitude: userLocation.longitude)
 
+        let unlockedIDs = Set(unlockedAchievements.map { $0.id })
+
         for achievement in AchievementLibrary.allAchievements {
-            if unlockedAchievements.contains(achievement) {
+            if unlockedIDs.contains(achievement.id) {
+                print("✅ Achievement already unlocked previously: \(achievement.title)")
                 continue
             }
 
@@ -153,39 +177,51 @@ extension AchievementUnlockManager {
                 continue
             }
 
-            // 🛑 Only photo-based achievements
-            if achievement.requiredPhotoLabel == nil {
-                continue
-            }
-
             print("📍 Checking achievement: \(achievement.title)")
 
+            var poiMatched = false
+            var labelMatched = false
+
             if let requiredPOI = achievement.triggerPOICategory {
-                let matchingPOI = locationManager.filteredPOIs.first {
+                if let matchingPOI = locationManager.filteredPOIs.first(where: {
                     $0.category.lowercased() == requiredPOI.lowercased() &&
                     CLLocation(latitude: $0.coordinate.latitude, longitude: $0.coordinate.longitude)
                         .distance(from: location) <= 150
-                }
-
-                if matchingPOI == nil {
-                    print("🚫 No matching POI found nearby for: \(requiredPOI)")
-                    continue
-                } else {
+                }) {
+                    poiMatched = true
                     print("✅ Found matching POI: \(requiredPOI)")
+                } else {
+                    print("🚫 No matching POI found nearby for: \(requiredPOI)")
                 }
             }
 
             if let requiredLabel = achievement.requiredPhotoLabel?.lowercased() {
-                if let labels = capturedLabels {
-                    if !labels.contains(where: { $0.lowercased() == requiredLabel }) {
-                        print("🚫 Required label '\(requiredLabel)' not found in captured labels")
-                        continue
-                    }
+                if let labels = capturedLabels, labels.contains(where: { $0.lowercased() == requiredLabel }) {
+                    labelMatched = true
+                } else {
+                    print("🚫 Required label '\(requiredLabel)' not found in captured labels")
                 }
             }
 
-            print("🏆 Unlocking dynamic photo-based achievement: \(achievement.title)")
-            unlock(achievement: achievement, attributesManager: attributesManager, scenePhase: scenePhase)
+            if achievement.triggerPOICategory != nil && achievement.requiredPhotoLabel != nil {
+                // Both POI and label required
+                if poiMatched && labelMatched {
+                    print("🏆 Unlocking achievement with both POI and label: \(achievement.title)")
+                    unlock(achievement: achievement, attributesManager: attributesManager, scenePhase: scenePhase)
+                }
+            } else if achievement.triggerPOICategory != nil {
+                // Only POI required
+                if poiMatched {
+                    print("🏆 Unlocking POI-based achievement: \(achievement.title)")
+                    unlock(achievement: achievement, attributesManager: attributesManager, scenePhase: scenePhase)
+                }
+            } else if achievement.requiredPhotoLabel != nil {
+                // Only label required
+                if labelMatched {
+                    print("🏆 Unlocking label-based achievement: \(achievement.title)")
+                    unlock(achievement: achievement, attributesManager: attributesManager, scenePhase: scenePhase)
+                }
+            }
         }
     }
 }
