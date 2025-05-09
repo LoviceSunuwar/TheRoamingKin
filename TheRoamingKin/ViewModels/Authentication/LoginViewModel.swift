@@ -11,6 +11,8 @@ enum AuthState {
 @MainActor
 final class LoginViewModel: ObservableObject {
     @Published var authState: AuthState = .unauthenticated
+    @Published var shouldShowWelcomeToast: Bool = false
+    @Published var isFirstTimeLogin: Bool = false
 
     private let authService = AuthService()
     private var cancellables = Set<AnyCancellable>()
@@ -26,17 +28,21 @@ final class LoginViewModel: ObservableObject {
                     }
                 },
                 receiveValue: { [weak self] user in
+                    guard let self else { return }
                     print("✅ Google sign-in success. UID: \(user.uid)")
-                    guard let self = self else { return }
 
                     self.authService.checkIfUserExistsPublisher(uid: user.uid)
                         .receive(on: DispatchQueue.main)
                         .sink(
                             receiveCompletion: { _ in },
                             receiveValue: { [weak self] exists in
-                                print("📢 checkIfUserExistsPublisher result: \(exists)")
-                                self?.authState = exists ? .authenticated : .needsUsername
-                                print("🔵 authState updated to: \(self?.authState ?? .unauthenticated)")
+                                guard let self else { return }
+                                self.authState = exists ? .authenticated : .needsUsername
+                                print("🔵 authState updated to: \(self.authState)")
+                                self.isFirstTimeLogin = !exists
+                                if self.authState == .authenticated {
+                                    self.loadUserData()
+                                }
                             }
                         )
                         .store(in: &self.cancellables)
@@ -47,13 +53,67 @@ final class LoginViewModel: ObservableObject {
 
     func markAuthenticated() {
         authState = .authenticated
+        shouldShowWelcomeToast = true
+
+        // Always unlock Guild Registration
+        if let guildRegistrationAchievement = AchievementLibrary.allAchievements.first(where: { $0.title == "Guild Registration" }) {
+            AchievementUnlockManager.shared.unlock(
+                achievement: guildRegistrationAchievement,
+                attributesManager: AttributesManager.shared,
+                scenePhase: .active
+            )
+        }
+
+        Task {
+            if !isFirstTimeLogin {
+                await AchievementUnlockManager.shared.loadUnlockedAchievements()
+            } else {
+                // ✅ SKIPPED loading achievements but we MUST mark it as loaded!
+                AchievementUnlockManager.shared.isLoaded = true
+                print("🆕 New user — skipping Firestore achievement fetch, isLoaded = true")
+            }
+
+            await AttributesManager.shared.loadAttributes()
+        }
     }
 
+    private func loadUserData() {
+        Task {
+            await AchievementUnlockManager.shared.loadUnlockedAchievements()
+            await AttributesManager.shared.loadAttributes()
+        }
+    }
+
+    func logout() {
+        authService.logout()
+        authState = .unauthenticated
+        AchievementUnlockManager.shared.resetUnlockedAchievements()
+        AttributesManager.shared.resetAttributes()
+    }
+
+
+
     func signInWithFacebook() {
-        print("TODO: Facebook Sign-In not yet implemented")
+        print("🟦 Facebook Sign-In not yet implemented. Placeholder function called.")
+        // Future: Integrate Facebook SDK login flow here
     }
 
     func signInWithApple() {
-        print("TODO: Apple Sign-In not yet implemented")
+        print("⚫️ Apple Sign-In not yet implemented. Placeholder function called.")
+        // Future: Integrate Apple Sign-In flow here
     }
+
+}
+
+
+
+
+func signInWithFacebook() {
+    print("🟦 Facebook Sign-In not yet implemented. Placeholder function called.")
+    // Future: Integrate Facebook SDK login flow here
+}
+
+func signInWithApple() {
+    print("⚫️ Apple Sign-In not yet implemented. Placeholder function called.")
+    // Future: Integrate Apple Sign-In flow here
 }

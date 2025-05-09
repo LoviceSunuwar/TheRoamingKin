@@ -99,7 +99,6 @@ final class AuthService {
         .eraseToAnyPublisher()
     }
 
-    
     func checkUsernameAvailablePublisher(username: String) -> AnyPublisher<Bool, Never> {
         Future { promise in
             self.db.collection("users")
@@ -114,7 +113,6 @@ final class AuthService {
         }
         .eraseToAnyPublisher()
     }
-
 
     func signInWithFacebook() {
         // TODO: Implement Facebook sign in
@@ -137,4 +135,16 @@ enum AuthError: Error {
     case missingGoogleSignInResult
     case missingIDToken
     case unknown
+}
+
+extension AuthService {
+    func logout() {
+        do {
+            try Auth.auth().signOut()
+            GIDSignIn.sharedInstance.signOut()
+            print("✅ Successfully signed out")
+        } catch {
+            print("❌ Failed to sign out: \(error.localizedDescription)")
+        }
+    }
 }
