@@ -10,6 +10,9 @@ jobs:
   build-and-test:
     runs-on: macos-14
 
+    env:
+      ENABLE_BUILD_PLUGIN_EXECUTION: YES
+
     steps:
       - name: Set up Xcode 16.2
         uses: maxim-lobanov/setup-xcode@v1
@@ -19,24 +22,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: List simulators (for debug)
+        run: xcrun simctl list devices
+
       - name: Resolve Swift Package dependencies
         run: |
           xcodebuild -resolvePackageDependencies \
-            -project TheRoamingKin.xcodeproj \
-            -enablePackagePluginExecution
+            -project TheRoamingKin.xcodeproj
 
-      - name: Build for testing (iPhone 15)
+      - name: Build for testing (iPhone)
         run: |
           xcodebuild build-for-testing \
             -project TheRoamingKin.xcodeproj \
             -scheme TheRoamingKin \
-            -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.4' \
-            -enablePackagePluginExecution
+            -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.4'
 
-      - name: Run tests (iPhone 15)
+      - name: Run tests (iPhone)
         run: |
           xcodebuild test-without-building \
             -project TheRoamingKin.xcodeproj \
             -scheme TheRoamingKin \
-            -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.4' \
-            -enablePackagePluginExecution
+            -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.4'
