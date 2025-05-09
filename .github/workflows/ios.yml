@@ -7,38 +7,43 @@ on:
     branches: ["main"]
 
 jobs:
-    build-and-test:
-      runs-on: macos-latest
+  build-and-test:
+    runs-on: macos-latest
 
-      steps:
-        - name: Set up Xcode
-          uses: maxim-lobanov/setup-xcode@v1
-          with:
-            xcode-version: latest-stable
+    steps:
+      - name: Set up Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
 
-        - name: Checkout code
-          uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-        - name: Run SwiftLint separately
-          run: |
-            brew install swiftlint || true
-            swiftlint
+      - name: Run SwiftLint separately
+        run: |
+          brew install swiftlint || true
+          swiftlint
 
-        - name: Resolve Swift Package dependencies
-          run: |
-            xcodebuild -resolvePackageDependencies \
-            -project TheRoamingKin.xcodeproj
+      - name: Resolve Swift Package dependencies
+        run: |
+          xcodebuild -resolvePackageDependencies \
+            -project TheRoamingKin.xcodeproj \
+            -skipPackagePluginValidation
 
-        - name: Build for testing
-          run: |
-            xcodebuild build-for-testing \
+      - name: Build for testing
+        run: |
+          xcodebuild build-for-testing \
             -project TheRoamingKin.xcodeproj \
             -scheme TheRoamingKin \
-            -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.4'
+            -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.4' \
+            -derivedDataPath ./DerivedData \
+            -skipPackagePluginValidation
 
-        - name: Run tests
-          run: |
-            xcodebuild test-without-building \
+      - name: Run tests
+        run: |
+          xcodebuild test-without-building \
             -project TheRoamingKin.xcodeproj \
             -scheme TheRoamingKin \
-            -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.4'
+            -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.4' \
+            -derivedDataPath ./DerivedData \
+            -skipPackagePluginValidation
