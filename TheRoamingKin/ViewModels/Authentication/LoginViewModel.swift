@@ -39,6 +39,7 @@ final class LoginViewModel: ObservableObject {
                                 guard let self else { return }
                                 self.authState = exists ? .authenticated : .needsUsername
                                 print("🔵 authState updated to: \(self.authState)")
+                                self.storeLoginTimestamp()
                                 self.isFirstTimeLogin = !exists
                                 if self.authState == .authenticated {
                                     self.loadUserData()
@@ -103,17 +104,36 @@ final class LoginViewModel: ObservableObject {
         // Future: Integrate Apple Sign-In flow here
     }
 
-}
+    // MARK: - Session Timeout Logic
+
+    func storeLoginTimestamp() {
+        let timestamp = Date().timeIntervalSince1970
+        UserDefaults.standard.set(timestamp, forKey: "lastLoginTimestamp")
+    }
+
+    func hasSessionExpired() -> Bool {
+        let timeout: TimeInterval = 1_209_600
+        let now = Date().timeIntervalSince1970
+        let lastLogin = UserDefaults.standard.double(forKey: "lastLoginTimestamp")
+        return (now - lastLogin) > timeout
+    }
+
+    func checkSessionValidityOnLaunch() {
+        if let user = Auth.auth().currentUser {
+            if hasSessionExpired() {
+                print("⏰ Session expired. Logging out.")
+                logout()
+                UserDefaults.standard.removeObject(forKey: "lastLoginTimestamp")
+            } else {
+                print("✅ Session still valid. Auto login.")
+                authState = .authenticated
+                loadUserData()
+            }
+        } else {
+            print("🔒 No Firebase user found.")
+            authState = .unauthenticated
+        }
+    }
 
 
-
-
-func signInWithFacebook() {
-    print("🟦 Facebook Sign-In not yet implemented. Placeholder function called.")
-    // Future: Integrate Facebook SDK login flow here
-}
-
-func signInWithApple() {
-    print("⚫️ Apple Sign-In not yet implemented. Placeholder function called.")
-    // Future: Integrate Apple Sign-In flow here
 }

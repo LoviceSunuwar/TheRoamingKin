@@ -26,6 +26,9 @@ struct TheRoamingKinApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView(viewModel: viewModel)
+                .onAppear() {
+                    viewModel.checkSessionValidityOnLaunch()
+                }
         }
     }
 }
