@@ -10,10 +10,26 @@ struct AchievementLibrary {
         ),
 
         // 🔹 Distance-based walking achievements
-        Achievement(title: "Walker", description: "Walked 1000 steps", imageName: "figure.walk", attributeAffected: .constitution, points: 1),
-        Achievement(title: "Explorer", description: "Walked 5000 steps", imageName: "map.fill", attributeAffected: .dexterity, points: 2),
-        Achievement(title: "Endurance Pro", description: "Walked 10,000 steps", imageName: "figure.hiking", attributeAffected: .constitution, points: 3),
-        Achievement(title: "Sprinter", description: "Walked 100m in a minute", imageName: "figure.run", attributeAffected: .dexterity, points: 3),
+        Achievement(title: "Walker",
+                    description: "Walked 1000 steps",
+                    imageName: "figure.walk",
+                    attributeAffected: .constitution,
+                    points: 1),
+        Achievement(title: "Explorer",
+                    description: "Walked 5000 steps",
+                    imageName: "map.fill",
+                    attributeAffected: .dexterity,
+                    points: 2),
+        Achievement(title: "Endurance Pro",
+                    description: "Walked 10,000 steps",
+                    imageName: "figure.hiking",
+                    attributeAffected: .constitution,
+                    points: 3),
+        Achievement(title: "Sprinter",
+                    description: "Walked 100m in a minute",
+                    imageName: "figure.run",
+                    attributeAffected: .dexterity,
+                    points: 3),
 
         // 🔹 Location + photo achievements (POI + image label)
         Achievement(
