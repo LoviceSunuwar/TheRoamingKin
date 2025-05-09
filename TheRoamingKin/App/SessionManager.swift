@@ -19,6 +19,8 @@ class SessionManager: NSObject, ObservableObject, @preconcurrency CLLocationMana
     @Published var remainingTime: TimeInterval = 0
 
     private var locationManager: CLLocationManager?
+    private var locationManagerUpdateCity: LocationManager
+
     private var healthManager = HealthManager()
     private var sessionTimer: Timer?
     private var healthTimer: Timer?
@@ -27,7 +29,8 @@ class SessionManager: NSObject, ObservableObject, @preconcurrency CLLocationMana
     private var caloriesAtStart: Double = 0
     private var distanceAtStart: Double = 0
 
-    override init() {
+    init(locationManagerUpdateCity: LocationManager) {
+        self.locationManagerUpdateCity = locationManagerUpdateCity
         super.init()
         requestNotificationPermission()
     }
@@ -55,6 +58,9 @@ class SessionManager: NSObject, ObservableObject, @preconcurrency CLLocationMana
             await healthManager.requestAuthorization()
             await fetchHealthDataAtStart()
             startHealthTracking()
+
+            await locationManagerUpdateCity.updateCityOnce()
+
         }
     }
 

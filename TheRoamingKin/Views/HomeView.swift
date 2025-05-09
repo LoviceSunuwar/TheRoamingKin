@@ -17,14 +17,23 @@ enum BottomSheetType: Identifiable {
 struct HomeView: View {
     @State private var isTracking = false
     @State private var showingSheet: BottomSheetType?
-    @StateObject private var locationManager = LocationManager()
-    @StateObject private var sessionManager = SessionManager()
+
+    @StateObject private var locationManager: LocationManager
+    @StateObject private var sessionManager: SessionManager
+
     @StateObject private var attributesManager = AttributesManager()
     @ObservedObject private var proximityMonitor = ProximityMonitor()
     @StateObject private var achievementUnlockManager = AchievementUnlockManager.shared
     @Environment(\.scenePhase) private var scenePhase
     @EnvironmentObject private var loginViewModel: LoginViewModel
     @StateObject private var speedMonitor = SpeedMonitor()
+
+    // MARK: - Injected initializer
+    init() {
+        let sharedLocationManager = LocationManager()
+        _locationManager = StateObject(wrappedValue: sharedLocationManager)
+        _sessionManager = StateObject(wrappedValue: SessionManager(locationManagerUpdateCity: sharedLocationManager))
+    }
 
     var body: some View {
         ZStack {
@@ -158,6 +167,7 @@ struct HomeView: View {
         .padding(.horizontal)
     }
 }
+
 
 // MARK: - Bottom Control Panel
 struct BottomControlCard: View {

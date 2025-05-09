@@ -11,6 +11,9 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var zoomLevel: Double = 0.05
     @Published var currentSpeed: Double = 0.0 // meters per second
 
+    private var lastGeocodeTime: Date?
+    private let geocodeCooldown: TimeInterval = 10 // seconds
+
     private var lastCity: String?
     private var hasSavedCityToFirestore = false
 
@@ -41,7 +44,6 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         return Array(visiblePOIs.prefix(limit))
     }
 
-
     var annotationSize: CGFloat {
         switch zoomLevel {
         case 0..<0.02:
@@ -69,8 +71,6 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
 
-
-
         DispatchQueue.main.async {
             self.userLocation = location.coordinate
             if self.region == nil {
@@ -85,19 +85,39 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             } else {
                 self.currentSpeed = 0
             }
-
-            Task {
-                await self.updateCity(for: location)
-            }
         }
     }
 
+    func updateCityOnce() async {
+        guard let currentLocation = userLocation.map({
+            CLLocation(
+                latitude: $0.latitude,
+                longitude: $0.longitude)
+        }) else {
+            print("⚠️ No valid user location available")
+            return
+        }
+        await updateCity(for: currentLocation)
+    }
+
     private func updateCity(for location: CLLocation) async {
+        if let last = lastGeocodeTime, Date().timeIntervalSince(last) < geocodeCooldown {
+            return
+        }
+
+        lastGeocodeTime = Date()
+
+        guard !geocoder.isGeocoding else {
+            print("🔁 Skipping — geocoder is busy")
+            return
+        }
+
         do {
             let placemarks = try await geocoder.reverseGeocodeLocation(location)
             if let placemark = placemarks.first,
                let city = placemark.locality,
                let country = placemark.country {
+
                 if city != lastCity {
                     print("🌆 City: \(city)")
                     lastCity = city
@@ -172,5 +192,3 @@ extension MKCoordinateRegion {
                (lonMin...lonMax).contains(coordinate.longitude)
     }
 }
-
-
