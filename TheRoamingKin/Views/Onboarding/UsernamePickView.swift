@@ -6,26 +6,46 @@ struct UsernamePickView: View {
 
     private let avatars = (0...8).map { String(format: "%02d", $0) } // "00" to "08"
 
-    private let columns = [
-        GridItem(.flexible()), GridItem(.flexible())
-    ]
-
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 16) {
             Spacer()
 
-            // App Logo (replace with real asset later)
-            Image("AppLogo") // 👈 your TRK image asset
-                .resizable()
-                .scaledToFit()
-                .frame(width: 150, height: 150)
-                .cornerRadius(16)
+            // Selected avatar preview (symbol-style placeholder)
+            if let selected = viewModel.selectedAvatar {
+                Circle()
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(width: 150, height: 150)
+                    .overlay(
+                        Text(selected)
+                            .font(.largeTitle)
+                            .foregroundColor(.black)
+                    )
+                    .padding(.bottom, 10)
+            }
 
-            // Username availability message
-            if let available = viewModel.isUsernameAvailable {
-                Text(available ? "The Username is available" : "The Username is taken")
-                    .font(.subheadline)
-                    .foregroundColor(available ? .green : .red)
+            // Avatar selection horizontal scroll
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 16) {
+                    ForEach(avatars, id: \.self) { avatar in
+                        ZStack {
+                            Circle()
+                                .stroke(viewModel.selectedAvatar == avatar ? Color.green : Color.black, lineWidth: 2)
+                                .background(
+                                    Circle()
+                                        .fill(Color.gray.opacity(0.2))
+                                )
+                                .frame(width: 60, height: 60)
+                                .overlay(
+                                    Text(avatar)
+                                        .foregroundColor(.black)
+                                )
+                        }
+                        .onTapGesture {
+                            viewModel.selectedAvatar = avatar
+                        }
+                    }
+                }
+                .padding(.horizontal)
             }
 
             // Username textfield
@@ -34,33 +54,12 @@ struct UsernamePickView: View {
                 .padding(.horizontal)
                 .frame(height: 40)
 
-            // Avatar grid
-            LazyVGrid(columns: columns, spacing: 20) {
-                ForEach(avatars, id: \.self) { avatar in
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(viewModel.selectedAvatar == avatar ? Color.green : Color.clear)
-                            .frame(height: 80)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color.black, lineWidth: 1)
-                            )
-
-                        Circle()
-                            .fill(Color.black)
-                            .frame(width: 40, height: 40)
-                            .overlay(
-                                Text(avatar)
-                                    .foregroundColor(.white)
-                                    .font(.subheadline)
-                            )
-                    }
-                    .onTapGesture {
-                        viewModel.selectedAvatar = avatar
-                    }
-                }
+            // Username availability
+            if let available = viewModel.isUsernameAvailable {
+                Text(available ? "The Username is available" : "The Username is taken")
+                    .font(.subheadline)
+                    .foregroundColor(available ? .green : .red)
             }
-            .padding(.horizontal)
 
             Spacer()
 
@@ -79,6 +78,7 @@ struct UsernamePickView: View {
             .disabled(!viewModel.canContinue)
             .padding(.horizontal)
 
+            // Error message
             if let errorMessage = viewModel.errorMessage {
                 Text(errorMessage)
                     .foregroundColor(.red)
