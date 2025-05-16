@@ -145,8 +145,9 @@ struct HomeView: View {
         case .achievements:
             AchievementsView()
         case .profile:
-            ProfileView()
-                .environmentObject(loginViewModel)
+            SettingsView()
+//            ProfileView()
+//                .environmentObject(loginViewModel)
         }
     }
 

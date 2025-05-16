@@ -15,7 +15,6 @@ struct POI: Identifiable {
 
     var symbol: String {
         switch category {
-        case "airport": return "airplane"
         case "amusementpark": return "ferris.wheel"
         case "aquarium": return "tortoise"
         case "bakery": return "cupcake"
@@ -32,12 +31,10 @@ struct POI: Identifiable {
         case "museum": return "building.columns"
         case "nationalpark": return "leaf"
         case "park": return "tree"
-        case "pharmacy": return "pills"
         case "restaurant": return "fork.knife"
         case "school": return "graduationcap"
         case "stadium": return "sportscourt"
         case "theater": return "theatermasks"
-        case "winery": return "wineglass"
         case "zoo": return "pawprint"
         case "fishingspot": return "fish"
         default: return "mappin"
