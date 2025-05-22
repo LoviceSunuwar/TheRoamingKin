@@ -138,11 +138,11 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         let searchRegion = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1))
 
         let categories = [
-            "amusementpark", "aquarium", "bakery", "beach",
-            "brewery", "cafe", "campground", "firestation", "fitnesscenter",
-            "hospital", "hotel", "library", "movietheater", "museum",
+            "amusementpark", "bakery", "beach",
+            "brewery", "cafe", "campground", "fitnesscenter",
+            "hotel", "library", "movietheater", "museum",
             "nationalpark", "park", "restaurant", "school",
-            "stadium", "theater","zoo", "fishingspot"
+            "theater", "zoo", "fishingspot"
         ]
 
         var pois: [POI] = []

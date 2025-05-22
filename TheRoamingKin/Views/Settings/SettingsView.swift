@@ -6,8 +6,14 @@
 //
 
 import SwiftUI
+import CoreLocation
+import HealthKit
+import AVFoundation
 
 struct SettingsView: View {
+    @EnvironmentObject var loginViewModel: LoginViewModel
+    @State private var showingAuthorizationSheet = false
+
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
@@ -24,9 +30,16 @@ struct SettingsView: View {
 
                 VStack(spacing: 1) {
                     SettingsRow(icon: "bell", title: "Notification")
-                    SettingsRow(icon: "person.crop.circle", title: "Profile")
+                    NavigationLink(destination: ProfileEditView(loginViewModel: loginViewModel)) {
+                        SettingsRow(icon: "person.crop.circle", title: "Profile")
+                    }
                     SettingsRow(icon: "globe", title: "Language")
-                    SettingsRow(icon: "checkmark.shield", title: "Authorize Management")
+
+                    Button(action: {
+                        showingAuthorizationSheet = true
+                    }) {
+                        SettingsRow(icon: "checkmark.shield", title: "Authorize Management")
+                    }
                 }
                 .background(Color(.systemBackground))
                 .cornerRadius(12)
@@ -51,6 +64,11 @@ struct SettingsView: View {
         .background(Color(.secondarySystemBackground).ignoresSafeArea())
         .navigationTitle("")
         .navigationBarHidden(true)
+        .sheet(isPresented: $showingAuthorizationSheet) {
+            AuthorizationSettingsView()
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+        }
     }
 }
 
@@ -87,6 +105,62 @@ struct SettingsRow: View {
     }
 }
 
-//#Preview {
-//    SettingsView()
-//}
+struct AuthorizationSettingsView: View {
+    @State private var locationEnabled: Bool = {
+        let manager = CLLocationManager()
+        let status = manager.authorizationStatus
+        return status == .authorizedWhenInUse || status == .authorizedAlways
+    }()
+
+    @State private var healthEnabled = HKHealthStore.isHealthDataAvailable()
+    @State private var cameraEnabled = AVCaptureDevice.authorizationStatus(for: .video) == .authorized
+
+    var body: some View {
+        VStack(spacing: 24) {
+            Text("Manage Permissions")
+                .font(.title2.bold())
+                .padding(.top)
+
+            Toggle("📍 Location Access", isOn: Binding(
+                get: { locationEnabled },
+                set: { _ in openSettingsApp() }
+            ))
+            .disabled(true)
+
+            Toggle("❤️ Health Access", isOn: Binding(
+                get: { healthEnabled },
+                set: { _ in openSettingsApp() }
+            ))
+            .disabled(true)
+
+            Toggle("📷 Camera Access", isOn: Binding(
+                get: { cameraEnabled },
+                set: { _ in openSettingsApp() }
+            ))
+            .disabled(true)
+
+            Button(action: {
+                openSettingsApp()
+            }) {
+                Label("Open Settings", systemImage: "gear")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(12)
+            }
+            .padding(.top)
+
+            Spacer()
+        }
+        .padding()
+    }
+
+    private func openSettingsApp() {
+        if let url = URL(string: UIApplication.openSettingsURLString),
+           UIApplication.shared.canOpenURL(url) {
+            UIApplication.shared.open(url)
+        }
+    }
+}

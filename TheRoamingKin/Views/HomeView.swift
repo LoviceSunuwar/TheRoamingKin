@@ -51,13 +51,18 @@ struct HomeView: View {
                     annotationItems: locationManager.filteredPOIs
                 ) { poi in
                     MapAnnotation(coordinate: poi.coordinate) {
-                        VStack(spacing: 2) {
-                            Image(systemName: poi.symbol)
-                                .font(.system(size: locationManager.annotationSize))
-                                .foregroundColor(.blue)
-                            Text(poi.category.capitalized)
-                                .font(.caption2)
-                                .multilineTextAlignment(.center)
+                        if let imageName = poi.imageName {
+                            VStack(spacing: 2) {
+                                Image(imageName)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: locationManager.annotationSize * 2,
+                                           height: locationManager.annotationSize * 2)
+
+                                Text(poi.category.capitalized)
+                                    .font(.caption2)
+                                    .multilineTextAlignment(.center)
+                            }
                         }
                     }
                 }
@@ -145,7 +150,10 @@ struct HomeView: View {
         case .achievements:
             AchievementsView()
         case .profile:
-            SettingsView()
+            NavigationStack {
+                SettingsView()
+                    .environmentObject(loginViewModel)
+            }
 //            ProfileView()
 //                .environmentObject(loginViewModel)
         }
@@ -254,6 +262,3 @@ struct SmallControlButton: View {
         }
     }
 }
-
-
-

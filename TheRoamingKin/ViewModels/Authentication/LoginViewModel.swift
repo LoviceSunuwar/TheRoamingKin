@@ -1,6 +1,7 @@
 import Foundation
 import Combine
 import FirebaseAuth
+import FirebaseFirestore
 
 enum AuthState {
     case unauthenticated
@@ -13,6 +14,7 @@ final class LoginViewModel: ObservableObject {
     @Published var authState: AuthState = .unauthenticated
     @Published var shouldShowWelcomeToast: Bool = false
     @Published var isFirstTimeLogin: Bool = false
+    @Published var currentUser: UserProfile?
 
     private let authService = AuthService()
     private var cancellables = Set<AnyCancellable>()
@@ -80,10 +82,33 @@ final class LoginViewModel: ObservableObject {
 
     private func loadUserData() {
         Task {
+            guard let uid = Auth.auth().currentUser?.uid else {
+                print("❌ No UID found for logged-in user")
+                return
+            }
+
+            let db = Firestore.firestore()
+            let docRef = db.collection("users").document(uid)
+
+            do {
+                let document = try await docRef.getDocument()
+                if let data = document.data() {
+                    let username = data["username"] as? String ?? ""
+                    let avatar = data["avatar"] as? String ?? "00"
+                    self.currentUser = UserProfile(username: username, avatar: avatar)
+                    print("✅ Loaded user profile: \(username), avatar: \(avatar)")
+                } else {
+                    print("❌ No user document found")
+                }
+            } catch {
+                print("❌ Failed to fetch user document: \(error.localizedDescription)")
+            }
+
             await AchievementUnlockManager.shared.loadUnlockedAchievements()
             await AttributesManager.shared.loadAttributes()
         }
     }
+
 
     func logout() {
         authService.logout()
@@ -93,6 +118,25 @@ final class LoginViewModel: ObservableObject {
     }
 
 
+    func updateUserProfile(newUsername: String, newAvatar: String) async throws {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            throw NSError(domain: "No user logged in", code: 401, userInfo: nil)
+        }
+
+        let db = Firestore.firestore()
+        let docRef = db.collection("users").document(uid)
+
+        try await docRef.setData([
+            "username": newUsername,
+            "avatar": newAvatar
+        ], merge: true)
+
+        // Update local cache
+        DispatchQueue.main.async {
+            self.currentUser = UserProfile(username: newUsername, avatar: newAvatar)
+            print("✅ Updated user profile in Firestore & local model")
+        }
+    }
 
     func signInWithFacebook() {
         print("🟦 Facebook Sign-In not yet implemented. Placeholder function called.")

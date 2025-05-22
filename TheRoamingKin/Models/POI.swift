@@ -13,31 +13,33 @@ struct POI: Identifiable {
     let coordinate: CLLocationCoordinate2D
     let category: String
 
-    var symbol: String {
-        switch category {
-        case "amusementpark": return "ferris.wheel"
-        case "aquarium": return "tortoise"
-        case "bakery": return "cupcake"
-        case "beach": return "sun.max"
-        case "brewery": return "wineglass"
-        case "cafe": return "cup.and.saucer"
-        case "campground": return "tent"
-        case "firestation": return "flame"
-        case "fitnesscenter": return "figure.walk"
-        case "hospital": return "cross.case"
-        case "hotel": return "bed.double"
-        case "library": return "books.vertical"
-        case "movietheater": return "film"
-        case "museum": return "building.columns"
-        case "nationalpark": return "leaf"
-        case "park": return "tree"
-        case "restaurant": return "fork.knife"
-        case "school": return "graduationcap"
-        case "stadium": return "sportscourt"
-        case "theater": return "theatermasks"
-        case "zoo": return "pawprint"
-        case "fishingspot": return "fish"
-        default: return "mappin"
+    var imageName: String? {
+        switch category.lowercased() {
+        case "amusementpark": return "POI_AmusementPark"
+        //case "aquarium": return "POI_Aquarium"
+        case "bakery": return "POI_Bakery"
+        case "beach": return "POI_Beach"
+        case "brewery": return "POI_Brewery"
+        case "cafe": return "POI_Cafe"
+        case "campground": return "POI_Campground"
+        //case "firestation": return "POI_FireStation"
+        case "fitnesscenter": return "POI_FitnessCenter"
+        //case "hospital": return "POI_Hospital"
+        case "hotel": return "POI_Hotel"
+        case "library": return "POI_Library"
+        case "movietheater": return "POI_MovieTheater"
+        case "museum": return "POI_Museum"
+        case "nationalpark": return "POI_NationalPark"
+        case "park": return "POI_Park"
+        case "restaurant": return "POI_Restaurant"
+        case "school": return "POI_School"
+        //case "stadium": return "POI_Stadium"
+        case "theater": return "POI_Theater"
+        case "zoo": return "POI_Zoo"
+        case "fishingspot": return "POI_FishingSpot"
+        default:
+            print("Unknown POI category: \(category)")
+            return nil
         }
     }
 }
