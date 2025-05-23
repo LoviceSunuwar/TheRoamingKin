@@ -16,7 +16,8 @@ class ProfileEditViewModel: ObservableObject {
 
     private var cancellables = Set<AnyCancellable>()
 
-    @MainActor func loadInitialState(from loginViewModel: LoginViewModel) {
+    @MainActor
+    func loadInitialState(from loginViewModel: LoginViewModel) {
         self.username = loginViewModel.currentUser?.username ?? ""
         self.selectedAvatar = loginViewModel.currentUser?.avatar
         checkAvailability(for: self.username)
@@ -35,7 +36,12 @@ class ProfileEditViewModel: ObservableObject {
     }
 
     func updateProfile(loginViewModel: LoginViewModel) {
-        guard canUpdate else { return }
+        guard canUpdate else {
+            if !isUsernameClean {
+                errorMessage = "Please choose a clean username."
+            }
+            return
+        }
 
         Task {
             do {
@@ -49,9 +55,13 @@ class ProfileEditViewModel: ObservableObject {
         }
     }
 
+    var isUsernameClean: Bool {
+        !ProfanityFilter.containsProfanity(username)
+    }
+
     var canUpdate: Bool {
         if let available = isUsernameAvailable {
-            return available && !(username.isEmpty || selectedAvatar == nil)
+            return available && !(username.isEmpty || selectedAvatar == nil) && isUsernameClean
         }
         return false
     }

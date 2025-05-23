@@ -10,7 +10,7 @@ struct UsernamePickView: View {
         VStack(spacing: 16) {
             Spacer()
 
-            // Selected avatar preview (symbol-style placeholder)
+            // Selected avatar preview
             if let selected = viewModel.selectedAvatar {
                 Circle()
                     .fill(Color.gray.opacity(0.3))
@@ -23,7 +23,7 @@ struct UsernamePickView: View {
                     .padding(.bottom, 10)
             }
 
-            // Avatar selection horizontal scroll
+            // Avatar picker
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 16) {
                     ForEach(avatars, id: \.self) { avatar in
@@ -48,17 +48,24 @@ struct UsernamePickView: View {
                 .padding(.horizontal)
             }
 
-            // Username textfield
+            // Username field
             TextField("Username", text: $viewModel.username)
                 .textFieldStyle(.roundedBorder)
                 .padding(.horizontal)
                 .frame(height: 40)
 
-            // Username availability
+            // Availability status
             if let available = viewModel.isUsernameAvailable {
                 Text(available ? "The Username is available" : "The Username is taken")
                     .font(.subheadline)
                     .foregroundColor(available ? .green : .red)
+            }
+
+            // Profanity warning
+            if !viewModel.isUsernameClean && !viewModel.username.isEmpty {
+                Text("Username contains inappropriate language.")
+                    .foregroundColor(.red)
+                    .font(.caption)
             }
 
             Spacer()
@@ -94,20 +101,23 @@ struct UsernamePickView: View {
     }
 }
 
-// MARK: - Extension for button enabling logic
 extension UsernamePickViewModel {
+    var isUsernameClean: Bool {
+        !ProfanityFilter.containsProfanity(username)
+    }
+
+    var canContinue: Bool {
+        if let available = isUsernameAvailable {
+            return available && selectedAvatar != nil && isUsernameClean
+        }
+        return false
+    }
+
     func usernameBorderColor(for availability: Bool?) -> Color {
         if let available = availability {
             return available ? .green : .red
         } else {
             return .gray
         }
-    }
-
-    var canContinue: Bool {
-        if let available = isUsernameAvailable {
-            return available && selectedAvatar != nil
-        }
-        return false
     }
 }

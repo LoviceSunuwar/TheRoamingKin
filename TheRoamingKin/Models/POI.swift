@@ -21,7 +21,7 @@ struct POI: Identifiable {
         case "beach": return "POI_Beach"
         case "brewery": return "POI_Brewery"
         case "cafe": return "POI_Cafe"
-        case "campground": return "POI_Campground"
+        //case "campground": return "POI_Campground"
         //case "firestation": return "POI_FireStation"
         case "fitnesscenter": return "POI_FitnessCenter"
         //case "hospital": return "POI_Hospital"

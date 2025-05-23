@@ -74,6 +74,21 @@ struct HomeView: View {
 
             VStack {
                 Spacer()
+
+                HStack {
+                    Spacer()
+                    Button(action: centerMapOnUserLocation) {
+                        Image(systemName: "location.fill")
+                            .foregroundColor(.white)
+                            .padding(16)
+                            .background(Color.blue)
+                            .clipShape(Circle())
+                            .shadow(radius: 4)
+                    }
+                    .padding(.trailing, 20)
+                    .padding(.bottom, 160)
+                }
+
                 BottomControlCard(
                     isTracking: $isTracking,
                     showingSheet: $showingSheet,
@@ -128,6 +143,13 @@ struct HomeView: View {
         )
     }
 
+    // MARK: - Center Map Helper
+    private func centerMapOnUserLocation() {
+        guard let userLocation = locationManager.userLocation else { return }
+        let span = MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+        locationManager.region = MKCoordinateRegion(center: userLocation, span: span)
+    }
+
     @ViewBuilder
     private func sheetView(for type: BottomSheetType) -> some View {
         switch type {
@@ -154,8 +176,6 @@ struct HomeView: View {
                 SettingsView()
                     .environmentObject(loginViewModel)
             }
-//            ProfileView()
-//                .environmentObject(loginViewModel)
         }
     }
 

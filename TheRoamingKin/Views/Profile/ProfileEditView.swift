@@ -1,10 +1,3 @@
-//
-//  ProfileEditView.swift
-//  TheRoamingKin
-//
-//  Created by Lovice Sunuwar on 21/05/2025.
-//
-
 import SwiftUI
 
 struct ProfileEditView: View {
@@ -49,8 +42,8 @@ struct ProfileEditView: View {
                 .textFieldStyle(.roundedBorder)
                 .padding(.horizontal)
                 .frame(height: 40)
-                .onChange(of: viewModel.username) { newUsername in
-                    viewModel.checkAvailability(for: newUsername)
+                .onChange(of: viewModel.username) {
+                    viewModel.checkAvailability(for: viewModel.username)
                 }
 
             if let available = viewModel.isUsernameAvailable {
@@ -59,7 +52,11 @@ struct ProfileEditView: View {
                     .foregroundColor(available ? .green : .red)
             }
 
-            Spacer()
+            if !viewModel.isUsernameClean && !viewModel.username.isEmpty {
+                Text("Username contains inappropriate language.")
+                    .foregroundColor(.red)
+                    .font(.caption)
+            }
 
             Button(action: {
                 viewModel.updateProfile(loginViewModel: loginViewModel)
@@ -79,6 +76,22 @@ struct ProfileEditView: View {
                 Text(errorMessage)
                     .foregroundColor(.red)
                     .font(.caption)
+            }
+
+            Spacer()
+
+            // MARK: - Logout Button
+            Button(action: {
+                loginViewModel.logout()
+            }) {
+                Text("Logout")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 44)
+                    .background(Color(.red))
+                    .cornerRadius(10)
+                    .padding(.horizontal)
             }
 
             Spacer()

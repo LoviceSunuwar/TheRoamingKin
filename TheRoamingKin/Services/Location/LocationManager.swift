@@ -133,13 +133,14 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             print("❌ Geocoding failed: \(error.localizedDescription)")
         }
     }
+    
 
     private func fetchPOIsNearby(center: CLLocationCoordinate2D) async {
         let searchRegion = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1))
 
         let categories = [
             "amusementpark", "bakery", "beach",
-            "brewery", "cafe", "campground", "fitnesscenter",
+            "brewery", "cafe", "fitnesscenter",
             "hotel", "library", "movietheater", "museum",
             "nationalpark", "park", "restaurant", "school",
             "theater", "zoo", "fishingspot"
