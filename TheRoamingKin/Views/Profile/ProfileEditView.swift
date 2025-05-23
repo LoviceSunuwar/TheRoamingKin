@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ProfileEditView: View {
-    @ObservedObject var loginViewModel: LoginViewModel
+    @EnvironmentObject var loginViewModel: LoginViewModel
     @StateObject private var viewModel = ProfileEditViewModel()
 
     private let avatars = (0...8).map { String(format: "%02d", $0) }
@@ -98,7 +98,10 @@ struct ProfileEditView: View {
         }
         .padding()
         .onAppear {
-            viewModel.loadInitialState(from: loginViewModel)
+            if viewModel.username.isEmpty && loginViewModel.currentUser != nil {
+                viewModel.loadInitialState(from: loginViewModel)
+            }
         }
+
     }
 }

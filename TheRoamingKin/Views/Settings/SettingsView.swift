@@ -30,7 +30,7 @@ struct SettingsView: View {
 
                 VStack(spacing: 1) {
                     SettingsRow(icon: "bell", title: "Notification")
-                    NavigationLink(destination: ProfileEditView(loginViewModel: loginViewModel)) {
+                    NavigationLink(destination: ProfileEditView()) {
                         SettingsRow(icon: "person.crop.circle", title: "Profile")
                     }
                     SettingsRow(icon: "globe", title: "Language")

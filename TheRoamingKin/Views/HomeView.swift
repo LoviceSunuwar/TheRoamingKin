@@ -10,7 +10,7 @@ import MapKit
 import AVFoundation
 
 enum BottomSheetType: Identifiable {
-    case camera, achievements, profile
+    case camera
     var id: Int { hashValue }
 }
 
@@ -28,11 +28,11 @@ struct HomeView: View {
     @EnvironmentObject private var loginViewModel: LoginViewModel
     @StateObject private var speedMonitor = SpeedMonitor()
 
-    // MARK: - Injected initializer
     init() {
         let sharedLocationManager = LocationManager()
         _locationManager = StateObject(wrappedValue: sharedLocationManager)
         _sessionManager = StateObject(wrappedValue: SessionManager(locationManagerUpdateCity: sharedLocationManager))
+        
     }
 
     var body: some View {
@@ -67,7 +67,7 @@ struct HomeView: View {
                     }
                 }
                 .edgesIgnoringSafeArea(.all)
-                .mapStyle(.standard(pointsOfInterest: .excludingAll))
+                .mapStyle(.standard(elevation: .realistic, pointsOfInterest: .excludingAll))
             } else {
                 ProgressView("Fetching your location...")
             }
@@ -75,26 +75,12 @@ struct HomeView: View {
             VStack {
                 Spacer()
 
-                HStack {
-                    Spacer()
-                    Button(action: centerMapOnUserLocation) {
-                        Image(systemName: "location.fill")
-                            .foregroundColor(.white)
-                            .padding(16)
-                            .background(Color.blue)
-                            .clipShape(Circle())
-                            .shadow(radius: 4)
-                    }
-                    .padding(.trailing, 20)
-                    .padding(.bottom, 160)
-                }
-
                 BottomControlCard(
                     isTracking: $isTracking,
                     showingSheet: $showingSheet,
                     sessionManager: sessionManager
                 )
-                .padding()
+                .environmentObject(locationManager)
             }
         }
         .sheet(item: $showingSheet) { type in
@@ -141,13 +127,7 @@ struct HomeView: View {
                 .padding(.top, 50),
             alignment: .top
         )
-    }
-
-    // MARK: - Center Map Helper
-    private func centerMapOnUserLocation() {
-        guard let userLocation = locationManager.userLocation else { return }
-        let span = MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
-        locationManager.region = MKCoordinateRegion(center: userLocation, span: span)
+        .background(Color(.tertiarySystemBackground))
     }
 
     @ViewBuilder
@@ -169,13 +149,6 @@ struct HomeView: View {
                     )
                 )
             )
-        case .achievements:
-            AchievementsView()
-        case .profile:
-            NavigationStack {
-                SettingsView()
-                    .environmentObject(loginViewModel)
-            }
         }
     }
 
@@ -197,56 +170,62 @@ struct HomeView: View {
     }
 }
 
-
 // MARK: - Bottom Control Panel
 struct BottomControlCard: View {
     @Binding var isTracking: Bool
     @Binding var showingSheet: BottomSheetType?
     @ObservedObject var sessionManager: SessionManager
+    @EnvironmentObject var locationManager: LocationManager
 
     var body: some View {
-        VStack(spacing: 8) {
-            HStack(spacing: 16) {
-                Button(action: {
-                    if sessionManager.sessionActive {
-                        sessionManager.stopSession()
-                    } else {
+        VStack(spacing: 12) {
+            HStack(spacing: 8) {
+                if !isTracking {
+                    SlideToStartButton(isTracking: $isTracking) {
                         sessionManager.startSession()
+                        isTracking = true
                     }
-                    isTracking.toggle()
-                }) {
-                    Text(isTracking ? "Stop" : "Start")
-                        .font(.headline)
-                        .foregroundColor(.black)
-                        .frame(width: 80, height: 50)
-                        .background(isTracking ? Color.red : Color.green)
-                        .cornerRadius(8)
+                } else {
+                    Button(action: {
+                        sessionManager.stopSession()
+                        isTracking = false
+                    }) {
+                        Text("⏹ Stop: \(formatTime(sessionManager.remainingTime))")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.red)
+                            .cornerRadius(12)
+                    }
                 }
 
-                Divider().frame(height: 50).background(.white.opacity(0.8))
+                Divider().frame(height: 60).background(.white.opacity(0.5))
 
-                SmallControlButton(title: "Camera", systemImage: "camera.fill") {
-                    showingSheet = .camera
+                HStack(spacing: 8) {
+                    SmallControlButton(title: "Camera", systemImage: "camera.fill") {
+                        showingSheet = .camera
+                    }
+
+                    SmallControlButton(title: "Center", systemImage: "location.fill") {
+                        centerMapOnUserLocation()
+                    }
                 }
-
-                SmallControlButton(title: "Achievements", systemImage: "star.fill") {
-                    showingSheet = .achievements
-                }
-
-                SmallControlButton(title: "Profile", systemImage: "person.crop.circle.fill") {
-                    showingSheet = .profile
-                }
-            }
-
-            if sessionManager.sessionActive {
-                Text("⏳ Time Left: \(formatTime(sessionManager.remainingTime))")
-                    .font(.caption2)
-                    .foregroundColor(.white)
             }
         }
-        .padding()
-        .background(Color(.sRGB, red: 0, green: 0, blue: 80/255, opacity: 0.9))
-        .cornerRadius(24)
+        .padding(.horizontal)
+        .padding(.vertical, 10)
+        .frame(maxWidth: .infinity)
+        .background(
+            RoundedRectangle(cornerRadius: 0)
+                .fill(Color(.sRGB, red: 0, green: 0, blue: 0.4, opacity: 0.9))
+        )
+    }
+
+    private func centerMapOnUserLocation() {
+        guard let userLocation = locationManager.userLocation else { return }
+        let span = MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+        locationManager.region = MKCoordinateRegion(center: userLocation, span: span)
     }
 
     private func formatTime(_ time: TimeInterval) -> String {
@@ -279,6 +258,49 @@ struct SmallControlButton: View {
             .background(Color.green)
             .cornerRadius(12)
             .foregroundColor(.black)
+        }
+    }
+}
+
+// MARK: - Slide to Start Button
+struct SlideToStartButton: View {
+    @Binding var isTracking: Bool
+    var action: () -> Void
+
+    @GestureState private var dragOffset: CGSize = .zero
+    @State private var isCompleted = false
+
+    var body: some View {
+        ZStack(alignment: .leading) {
+            RoundedRectangle(cornerRadius: 30)
+                .fill(Color.blue)
+                .frame(width: 220, height: 60)
+
+            Text("Slide to Start >>")
+                .foregroundColor(.white)
+                .frame(width: 220, height: 60, alignment: .center)
+                .padding(.horizontal)
+
+            Circle()
+                .fill(Color.white)
+                .frame(width: 50, height: 50)
+                .offset(x: dragOffset.width)
+                .gesture(
+                    DragGesture()
+                        .updating($dragOffset) { value, state, _ in
+                            if value.translation.width > 0 && value.translation.width < 170 {
+                                state = value.translation
+                            }
+                        }
+                        .onEnded { value in
+                            if value.translation.width > 150 {
+                                isCompleted = true
+                                AudioPlayer.shared.playSound(named: "TRKStart") // ✅ play sound
+                                action()
+                            }
+                        }
+                )
+                .animation(.easeOut, value: dragOffset)
         }
     }
 }

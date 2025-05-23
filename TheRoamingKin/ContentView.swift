@@ -20,7 +20,7 @@ struct ContentView: View {
                 UsernamePickView(loginViewModel: viewModel)
 
             case .authenticated:
-                HomeView()
+                MainTabView()
                     .environmentObject(viewModel)
             }
         }
