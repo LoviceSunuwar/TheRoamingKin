@@ -25,16 +25,24 @@ struct TheRoamingKinApp: App {
     @StateObject private var viewModel = LoginViewModel()
     @Environment(\.scenePhase) private var scenePhase
 
+    @State private var showSplash = true
+
     var body: some Scene {
         WindowGroup {
-            ContentView(viewModel: viewModel)
-                .onAppear {
-                    viewModel.checkSessionValidityOnLaunch()
+            ZStack {
+                ContentView(viewModel: viewModel)
+                    .onAppear {
+                        viewModel.checkSessionValidityOnLaunch()
+                    }
+
+                if showSplash {
+                    SplashView(isActive: $showSplash)
+                        .transition(.opacity)
                 }
+            }
         }
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .background || newPhase == .inactive {
-                // Handle cleanup if app was closed or backgrounded
                 UNUserNotificationCenter.current()
                     .removePendingNotificationRequests(withIdentifiers: ["session_end_warning"])
                 print("🧹 Removed 'session_end_warning' notification due to app state change.")
