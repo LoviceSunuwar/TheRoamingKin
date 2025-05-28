@@ -4,42 +4,54 @@ struct UsernamePickView: View {
     @StateObject private var viewModel = UsernamePickViewModel()
     @ObservedObject var loginViewModel: LoginViewModel
 
-    private let avatars = (0...8).map { String(format: "%02d", $0) } // "00" to "08"
+    private let avatars = [
+        "Barbarian", "Knight", "Mage", "Rogue", "Rogue_Hooded",
+        "Skeleton_Mage", "Skeleton_Minion", "Skeleton_Rogue", "Skeleton_Warrior"
+    ]
+
+    private let avatarNameMap: [String: String] = [
+        "Barbarian": "Barbarian",
+        "Knight": "Knight",
+        "Mage": "Mage",
+        "Rogue": "Rogue",
+        "Rogue_Hooded": "Rogue+Hood",
+        "Skeleton_Mage": "Skel Mage",
+        "Skeleton_Minion": "Minion",
+        "Skeleton_Rogue": "Skel Rogue",
+        "Skeleton_Warrior": "Skel Warrior"
+    ]
 
     var body: some View {
         VStack(spacing: 16) {
             Spacer()
 
-            // Selected avatar preview
+            // MARK: - Large Selected Avatar Preview
             if let selected = viewModel.selectedAvatar {
-                Circle()
-                    .fill(Color.gray.opacity(0.3))
-                    .frame(width: 150, height: 150)
-                    .overlay(
-                        Text(selected)
-                            .font(.largeTitle)
-                            .foregroundColor(.black)
+                AvatarSceneView(avatarName: selected, isInteractive: true)
+                    .id(selected) // ⬅️ Forces view to update when avatar changes
+                    .frame(
+                        width: UIScreen.main.bounds.width * 0.9,
+                        height: UIScreen.main.bounds.height * 0.4
                     )
+                    .cornerRadius(16)
                     .padding(.bottom, 10)
             }
 
-            // Avatar picker
+            // MARK: - Avatar Scroll Selection
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 16) {
                     ForEach(avatars, id: \.self) { avatar in
-                        ZStack {
-                            Circle()
-                                .stroke(viewModel.selectedAvatar == avatar ? Color.green : Color.black, lineWidth: 2)
-                                .background(
-                                    Circle()
-                                        .fill(Color.gray.opacity(0.2))
-                                )
-                                .frame(width: 60, height: 60)
-                                .overlay(
-                                    Text(avatar)
-                                        .foregroundColor(.black)
-                                )
+                        VStack(spacing: 4) {
+                            AvatarSceneView(avatarName: avatar, isInteractive: false)
+                                .frame(width: 80, height: 80)
+
+                            Text(avatarNameMap[avatar] ?? avatar.capitalized)
+                                .font(.caption)
+                                .foregroundColor(.white)
                         }
+                        .padding(8)
+                        .background(viewModel.selectedAvatar == avatar ? Color.green : Color.black)
+                        .cornerRadius(12)
                         .onTapGesture {
                             viewModel.selectedAvatar = avatar
                         }
@@ -48,20 +60,19 @@ struct UsernamePickView: View {
                 .padding(.horizontal)
             }
 
-            // Username field
+            // MARK: - Username TextField
             TextField("Username", text: $viewModel.username)
                 .textFieldStyle(.roundedBorder)
                 .padding(.horizontal)
                 .frame(height: 40)
 
-            // Availability status
+            // MARK: - Feedback
             if let available = viewModel.isUsernameAvailable {
                 Text(available ? "The Username is available" : "The Username is taken")
                     .font(.subheadline)
                     .foregroundColor(available ? .green : .red)
             }
 
-            // Profanity warning
             if !viewModel.isUsernameClean && !viewModel.username.isEmpty {
                 Text("Username contains inappropriate language.")
                     .foregroundColor(.red)
@@ -70,7 +81,7 @@ struct UsernamePickView: View {
 
             Spacer()
 
-            // Continue button
+            // MARK: - Continue Button
             Button(action: {
                 viewModel.saveProfile(loginViewModel: loginViewModel)
             }) {
@@ -85,7 +96,6 @@ struct UsernamePickView: View {
             .disabled(!viewModel.canContinue)
             .padding(.horizontal)
 
-            // Error message
             if let errorMessage = viewModel.errorMessage {
                 Text(errorMessage)
                     .foregroundColor(.red)

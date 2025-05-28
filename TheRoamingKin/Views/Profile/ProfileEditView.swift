@@ -1,43 +1,66 @@
 import SwiftUI
 
 struct ProfileEditView: View {
-    @ObservedObject var loginViewModel: LoginViewModel
+    @EnvironmentObject var loginViewModel: LoginViewModel
     @StateObject private var viewModel = ProfileEditViewModel()
 
-    private let avatars = (0...8).map { String(format: "%02d", $0) }
+    private let avatars = [
+        "Barbarian", "Knight", "Mage", "Rogue", "Rogue_Hooded",
+        "Skeleton_Mage", "Skeleton_Minion", "Skeleton_Rogue", "Skeleton_Warrior"
+    ]
+
+    private let avatarNameMap: [String: String] = [
+        "Barbarian": "Barbarian",
+        "Knight": "Knight",
+        "Mage": "Mage",
+        "Rogue": "Rogue",
+        "Rogue_Hooded": "Rogue+Hood",
+        "Skeleton_Mage": "Skel Mage",
+        "Skeleton_Minion": "Minion",
+        "Skeleton_Rogue": "Skel Rogue",
+        "Skeleton_Warrior": "Skel Warrior"
+    ]
 
     var body: some View {
         VStack(spacing: 16) {
             Spacer()
 
+            // MARK: - 3D Preview
             if let selected = viewModel.selectedAvatar {
-                Circle()
-                    .fill(Color.gray.opacity(0.3))
-                    .frame(width: 150, height: 150)
-                    .overlay(
-                        Text(selected)
-                            .font(.largeTitle)
-                            .foregroundColor(.black)
+                AvatarSceneView(avatarName: selected, isInteractive: true)
+                    .id(selected)
+                    .frame(
+                        width: UIScreen.main.bounds.width * 0.9,
+                        height: UIScreen.main.bounds.height * 0.4
                     )
+                    .cornerRadius(16)
                     .padding(.bottom, 10)
             }
 
+            // MARK: - Avatar Picker
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 16) {
                     ForEach(avatars, id: \.self) { avatar in
-                        Circle()
-                            .stroke(viewModel.selectedAvatar == avatar ? Color.green : Color.black, lineWidth: 2)
-                            .background(Circle().fill(Color.gray.opacity(0.2)))
-                            .frame(width: 60, height: 60)
-                            .overlay(Text(avatar).foregroundColor(.black))
-                            .onTapGesture {
-                                viewModel.selectedAvatar = avatar
-                            }
+                        VStack(spacing: 4) {
+                            AvatarSceneView(avatarName: avatar, isInteractive: false)
+                                .frame(width: 80, height: 80)
+
+                            Text(avatarNameMap[avatar] ?? avatar.capitalized)
+                                .font(.caption)
+                                .foregroundColor(.white)
+                        }
+                        .padding(8)
+                        .background(viewModel.selectedAvatar == avatar ? Color.green : Color.black)
+                        .cornerRadius(12)
+                        .onTapGesture {
+                            viewModel.selectedAvatar = avatar
+                        }
                     }
                 }
                 .padding(.horizontal)
             }
 
+            // MARK: - Username TextField
             TextField("Username", text: $viewModel.username)
                 .textFieldStyle(.roundedBorder)
                 .padding(.horizontal)
@@ -46,6 +69,7 @@ struct ProfileEditView: View {
                     viewModel.checkAvailability(for: viewModel.username)
                 }
 
+            // MARK: - Username Status
             if let available = viewModel.isUsernameAvailable {
                 Text(available ? "Username is available" : "Username is taken")
                     .font(.subheadline)
@@ -58,6 +82,7 @@ struct ProfileEditView: View {
                     .font(.caption)
             }
 
+            // MARK: - Update Button
             Button(action: {
                 viewModel.updateProfile(loginViewModel: loginViewModel)
             }) {
@@ -72,6 +97,7 @@ struct ProfileEditView: View {
             .disabled(!viewModel.canUpdate)
             .padding(.horizontal)
 
+            // MARK: - Error Message
             if let errorMessage = viewModel.errorMessage {
                 Text(errorMessage)
                     .foregroundColor(.red)
@@ -98,7 +124,9 @@ struct ProfileEditView: View {
         }
         .padding()
         .onAppear {
-            viewModel.loadInitialState(from: loginViewModel)
+            if viewModel.username.isEmpty && loginViewModel.currentUser != nil {
+                viewModel.loadInitialState(from: loginViewModel)
+            }
         }
     }
 }
