@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B2A37F7A2DE6AA6700139867 /* GLTFKit2 in Frameworks */ = {isa = PBXBuildFile; productRef = B2A37F792DE6AA6700139867 /* GLTFKit2 */; };
 		B2CC20CA2DBDBD02007F1119 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = B2CC20C82DBDBCFE007F1119 /* .gitignore */; };
 		B2CC20CD2DBDC63C007F1119 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = B2CC20CC2DBDC63C007F1119 /* FirebaseAnalytics */; };
 		B2CC20CF2DBDC63C007F1119 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = B2CC20CE2DBDC63C007F1119 /* FirebaseAuth */; };
@@ -106,6 +107,7 @@
 				B2CC20D92DBDC63C007F1119 /* FirebaseFirestoreCombine-Community in Frameworks */,
 				B2CC20E32DBDC63C007F1119 /* FirebaseStorageCombine-Community in Frameworks */,
 				B2CC20DF2DBDC63C007F1119 /* FirebaseRemoteConfig in Frameworks */,
+				B2A37F7A2DE6AA6700139867 /* GLTFKit2 in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -186,6 +188,7 @@
 				B2CC210E2DBDCDEC007F1119 /* GoogleSignIn */,
 				B2CC21102DBDCDEC007F1119 /* GoogleSignInSwift */,
 				B2CC21132DBDCFA4007F1119 /* FacebookLogin */,
+				B2A37F792DE6AA6700139867 /* GLTFKit2 */,
 			);
 			productName = TheRoamingKin;
 			productReference = B2CC206A2DBDB193007F1119 /* TheRoamingKin.app */;
@@ -278,6 +281,7 @@
 				B2CC20E72DBDC8A5007F1119 /* XCRemoteSwiftPackageReference "AlertToast" */,
 				B2CC210D2DBDCDEC007F1119 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 				B2CC21122DBDCFA4007F1119 /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */,
+				B2A37F782DE6AA6700139867 /* XCRemoteSwiftPackageReference "GLTFKit2" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B2CC206B2DBDB193007F1119 /* Products */;
@@ -684,6 +688,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		B2A37F782DE6AA6700139867 /* XCRemoteSwiftPackageReference "GLTFKit2" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/warrenm/GLTFKit2.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.5.13;
+			};
+		};
 		B2CC20C52DBDBCC3007F1119 /* XCRemoteSwiftPackageReference "SwiftLint" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/realm/SwiftLint.git";
@@ -744,6 +756,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B2CC20C52DBDBCC3007F1119 /* XCRemoteSwiftPackageReference "SwiftLint" */;
 			productName = "plugin:SwiftLintBuildToolPlugin";
+		};
+		B2A37F792DE6AA6700139867 /* GLTFKit2 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B2A37F782DE6AA6700139867 /* XCRemoteSwiftPackageReference "GLTFKit2" */;
+			productName = GLTFKit2;
 		};
 		B2CC20C62DBDBCD3007F1119 /* SwiftLintBuildToolPlugin */ = {
 			isa = XCSwiftPackageProductDependency;
