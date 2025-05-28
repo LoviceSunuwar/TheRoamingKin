@@ -4,14 +4,12 @@
 //
 //  Created by Lovice Sunuwar on 08/05/2025.
 //
-
 import SwiftUI
 
 struct AchievementsView: View {
     @StateObject private var attributeManager = AttributesManager.shared
     @StateObject private var achievementManager = AchievementUnlockManager.shared
-
-    private let userAvatarName = "person.crop.circle.fill" // Replace with your SVG rendering if needed
+    @EnvironmentObject private var loginViewModel: LoginViewModel
 
     private let columns = [
         GridItem(.flexible()),
@@ -33,12 +31,19 @@ struct AchievementsView: View {
 
                 // MARK: - Top Avatar + Stats View
                 HStack(alignment: .top, spacing: 16) {
-                    Image(systemName: userAvatarName)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 120, height: 120)
-                        .foregroundColor(.green)
-                        .padding(.leading)
+                    if let avatarName = loginViewModel.currentUser?.avatar {
+                        AvatarSceneView(avatarName: avatarName, isInteractive: true)
+                            .frame(width: 120, height: 160)
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                            .padding(.leading)
+                    } else {
+                        Image(systemName: "person.crop.circle.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 120, height: 120)
+                            .foregroundColor(.green)
+                            .padding(.leading)
+                    }
 
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Strength: \(attributeManager.strength)")

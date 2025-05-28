@@ -58,7 +58,6 @@ final class LoginViewModel: ObservableObject {
         authState = .authenticated
         shouldShowWelcomeToast = true
 
-        // Always unlock Guild Registration
         if let guildRegistrationAchievement = AchievementLibrary.allAchievements.first(where: { $0.title == "Guild Registration" }) {
             AchievementUnlockManager.shared.unlock(
                 achievement: guildRegistrationAchievement,
@@ -71,7 +70,6 @@ final class LoginViewModel: ObservableObject {
             if !isFirstTimeLogin {
                 await AchievementUnlockManager.shared.loadUnlockedAchievements()
             } else {
-                // ✅ SKIPPED loading achievements but we MUST mark it as loaded!
                 AchievementUnlockManager.shared.isLoaded = true
                 print("🆕 New user — skipping Firestore achievement fetch, isLoaded = true")
             }
@@ -94,7 +92,7 @@ final class LoginViewModel: ObservableObject {
                 let document = try await docRef.getDocument()
                 if let data = document.data() {
                     let username = data["username"] as? String ?? ""
-                    let avatar = data["avatar"] as? String ?? "00"
+                    let avatar = data["avatarURL"] as? String ?? "Barbarian" // ✅ FIXED: reads from correct key
                     self.currentUser = UserProfile(username: username, avatar: avatar)
                     print("✅ Loaded user profile: \(username), avatar: \(avatar)")
                 } else {
@@ -109,15 +107,6 @@ final class LoginViewModel: ObservableObject {
         }
     }
 
-
-    func logout() {
-        authService.logout()
-        authState = .unauthenticated
-        AchievementUnlockManager.shared.resetUnlockedAchievements()
-        AttributesManager.shared.resetAttributes()
-    }
-
-
     func updateUserProfile(newUsername: String, newAvatar: String) async throws {
         guard let uid = Auth.auth().currentUser?.uid else {
             throw NSError(domain: "No user logged in", code: 401, userInfo: nil)
@@ -128,24 +117,20 @@ final class LoginViewModel: ObservableObject {
 
         try await docRef.setData([
             "username": newUsername,
-            "avatar": newAvatar
+            "avatarURL": newAvatar // ✅ FIXED: saves to avatarURL
         ], merge: true)
 
-        // Update local cache
         DispatchQueue.main.async {
             self.currentUser = UserProfile(username: newUsername, avatar: newAvatar)
             print("✅ Updated user profile in Firestore & local model")
         }
     }
 
-    func signInWithFacebook() {
-        print("🟦 Facebook Sign-In not yet implemented. Placeholder function called.")
-        // Future: Integrate Facebook SDK login flow here
-    }
-
-    func signInWithApple() {
-        print("⚫️ Apple Sign-In not yet implemented. Placeholder function called.")
-        // Future: Integrate Apple Sign-In flow here
+    func logout() {
+        authService.logout()
+        authState = .unauthenticated
+        AchievementUnlockManager.shared.resetUnlockedAchievements()
+        AttributesManager.shared.resetAttributes()
     }
 
     // MARK: - Session Timeout Logic
@@ -156,7 +141,7 @@ final class LoginViewModel: ObservableObject {
     }
 
     func hasSessionExpired() -> Bool {
-        let timeout: TimeInterval = 1_209_600
+        let timeout: TimeInterval = 1_209_600 // 14 days
         let now = Date().timeIntervalSince1970
         let lastLogin = UserDefaults.standard.double(forKey: "lastLoginTimestamp")
         return (now - lastLogin) > timeout
@@ -179,5 +164,11 @@ final class LoginViewModel: ObservableObject {
         }
     }
 
+    func signInWithFacebook() {
+        print("🟦 Facebook Sign-In not yet implemented. Placeholder function called.")
+    }
 
+    func signInWithApple() {
+        print("⚫️ Apple Sign-In not yet implemented. Placeholder function called.")
+    }
 }
